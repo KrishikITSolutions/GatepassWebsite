@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Head from "next/head"; // 👈 import Head
+import logo from "../assets/logo.png"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Head>
+        <link rel="icon" href="./Gatpasslogo_color.png" type="image/png" /> {/* 👈 Your logo file */}
+      </Head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

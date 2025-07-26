@@ -83,11 +83,23 @@ export default function Dashboard() {
           </button>
 
           {/* YouTube Embed */}
-          <div className="mt-10 flex justify-center md:justify-start">
-            <div className="rounded-lg overflow-hidden shadow-md w-full max-w-xl">
-             <iframe width="560" height="315" src="https://www.youtube.com/embed/M25FHi7vpHI?si=OaLNva9SqNVXiacv" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
-            </div>
-          </div>
+          
+          <div className="mt-10 flex justify-center md:justify-start w-full">
+  <div className="relative w-full pb-[56.25%] rounded-lg shadow-md overflow-hidden max-w-xl">
+    <iframe
+      className="absolute top-0 left-0 w-full h-full"
+      src="https://www.youtube.com/embed/M25FHi7vpHI?si=OaLNva9SqNVXiacv"
+      title="YouTube video player"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerPolicy="strict-origin-when-cross-origin"
+      allowFullScreen
+    ></iframe>
+  </div>
+</div>
+
+
+
         </div>
 
         {/* Right Side - Brochure Images */}
