@@ -1,73 +1,15 @@
 "use client"
 import Image from 'next/image';
-import logo from "../assets/logo.png"
 import Footer from '@/components/footer';
 import brochureFront from "../assets/gp2.png"
 import brochureBack from "../assets/gp1.png"
-import { useState } from 'react';
+import Header from '@/components/header';
 
 export default function Dashboard() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
-        {/* Logo */}
-        <div className="flex items-center space-x-4 cursor-pointer">
-          <Image src={logo} alt="Logo" width={80} height={80} />
-        </div>
-
-        {/* Navigation - Desktop */}
-        <nav className="hidden md:flex space-x-8 text-gray-600 text-base font-medium ml-[600px]">
-          <a href="#" className="text-lg hover:text-[#28B8AE] transition-colors duration-200">About us</a>
-          <a href="#" className="text-lg hover:text-[#28B8AE] transition-colors duration-200">Services</a>
-          <a href="#" className="text-lg hover:text-[#28B8AE] transition-colors duration-200">Contact us</a>
-        </nav>
-
-        {/* Book a Demo - Desktop */}
-        <div className="hidden md:block">
-          <button className="bg-[#28B8AE] hover:bg-[#239b96] text-white px-5 py-2 rounded-lg font-semibold shadow transition">
-            Book a Demo
-          </button>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <button
-            className="text-gray-700 focus:outline-none"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-              />
-            </svg>
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Navigation Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white px-6 py-4 space-y-4 shadow">
-          <a href="#" className="block text-gray-700 hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>About us</a>
-          <a href="#" className="block text-gray-700 hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>Services</a>
-          <a href="#" className="block text-gray-700 hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>Contact us</a>
-          <button className="w-full bg-[#28B8AE] hover:bg-[#239b96] text-white px-4 py-2 rounded-lg font-semibold shadow transition">
-            Book a Demo
-          </button>
-        </div>
-      )}
-
+      <Header />
       {/* Hero Section */}
       <section className="px-4 md:px-20 flex flex-col md:flex-row items-start justify-between py-16 gap-10">
         {/* Left Side */}
