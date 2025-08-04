@@ -82,7 +82,7 @@ export default function Dashboard() {
             Start creating free
           </button>
 
-          {/* YouTube Embed video updated! */}
+          {/* YouTube Embed video updated!*/}
           
           <div className="mt-10 flex justify-center md:justify-start w-full">
   <div className="relative w-full pb-[56.25%] rounded-lg shadow-md overflow-hidden max-w-xl">
