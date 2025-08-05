@@ -26,16 +26,16 @@ export default function Header() {
 
         {/* Navigation - Desktop */}
         <nav className="hidden md:flex flex-1 justify-center space-x-10 text-gray-700 text-lg font-medium ml-40">
-          <Link href="/privacypolicy" className="hover:text-[#28B8AE] transition-colors">
+          <Link href="/privacy-policy" className="hover:text-[#28B8AE] transition-colors">
             Privacy Policy
           </Link>
-          <Link href="/privacysummary" className="hover:text-[#28B8AE] transition-colors">
+          <Link href="/privacy-summary" className="hover:text-[#28B8AE] transition-colors">
             Privacy Summary
           </Link>
-          <Link href="/termsofservice" className="hover:text-[#28B8AE] transition-colors">
+          <Link href="/terms-of-service" className="hover:text-[#28B8AE] transition-colors">
             Terms of Service
           </Link>
-          <Link href="/termssummary" className="hover:text-[#28B8AE] transition-colors">
+          <Link href="/terms-of-service-summary" className="hover:text-[#28B8AE] transition-colors">
             Terms Summary
           </Link>
         </nav>
@@ -79,25 +79,25 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden bg-white shadow-md rounded-lg mx-4 mt-2 p-4 border border-gray-200 transition-all duration-300 space-y-3">
           <Link
-            href="/privacypolicy"
+            href="/privacy-policy"
             className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
           >
             Privacy Policy
           </Link>
           <Link
-            href="/privacysummary"
+            href="/privacy-summary"
             className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
           >
             Privacy Summary
           </Link>
           <Link
-            href="/termsofservice"
+            href="/terms-of-service"
             className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
           >
             Terms of Service
           </Link>
           <Link
-            href="/termssummary"
+            href="/terms-of-service-summary"
             className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
           >
             Terms Summary
