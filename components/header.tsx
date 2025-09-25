@@ -25,7 +25,7 @@ export default function Header() {
         </div>
 
         {/* Navigation - Desktop */}
-        <nav className="hidden md:flex flex-1 justify-center space-x-10 text-gray-700 text-lg font-medium ml-40">
+        <nav className="hidden md:flex flex-1 justify-center space-x-10 text-gray-700 text-lg font-medium">
           <Link href="/privacy-policy" className="hover:text-[#28B8AE] transition-colors">
             Privacy Policy
           </Link>
@@ -37,6 +37,15 @@ export default function Header() {
           </Link>
           <Link href="/terms-of-service-summary" className="hover:text-[#28B8AE] transition-colors">
             Terms Summary
+          </Link>
+          <Link href="/contact-us" className="hover:text-[#28B8AE] transition-colors">
+            Contact Us
+          </Link>
+          <Link href="/refund-policy" className="hover:text-[#28B8AE] transition-colors">
+            Refund Policy
+          </Link>
+          <Link href="/cancellation-policy" className="hover:text-[#28B8AE] transition-colors">
+           Cancellation Policy
           </Link>
         </nav>
 
@@ -101,6 +110,24 @@ export default function Header() {
             className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
           >
             Terms Summary
+          </Link>
+           <Link
+            href="/contact-us"
+            className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
+          >
+            Contact Us
+          </Link>
+          <Link
+            href="/Refund-policy"
+            className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
+          >
+            Refund Policy
+          </Link>
+          <Link
+            href="/cancellation-policy"
+            className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
+          >
+            Cancellation Policy
           </Link>
           <button className="w-full bg-[#28B8AE] hover:bg-[#239b96] text-white font-semibold py-2 rounded-md transition">
             Book a Demo
