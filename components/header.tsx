@@ -118,7 +118,7 @@ export default function Header() {
             Contact Us
           </Link>
           <Link
-            href="/Refund-policy"
+            href="/refund-policy"
             className="block text-gray-800 font-medium px-2 py-2 rounded-md hover:bg-[#f0fdfa] hover:text-[#28B8AE] transition"
           >
             Refund Policy
