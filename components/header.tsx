@@ -47,6 +47,8 @@ export default function Header() {
           <Link href="/cancellation-policy" className="hover:text-[#28B8AE] transition-colors">
            Cancellation Policy
           </Link>
+           
+          
         </nav>
 
         {/* CTA Button */}
@@ -54,6 +56,15 @@ export default function Header() {
           <button className="bg-[#28B8AE] hover:bg-[#239b96] text-white px-4 py-2 rounded-md font-semibold shadow transition">
             Book a Demo
           </button>
+        </div>
+
+         {/* Redirect to /admin/login page */}
+          <div className="hidden md:block">
+            <Link href="/welcome">
+          <button className="bg-[#28B8AE] hover:bg-[#239b96] text-white px-4 py-2 rounded-md font-semibold shadow transition">
+            Login
+          </button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
