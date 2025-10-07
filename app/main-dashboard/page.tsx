@@ -24,12 +24,15 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <Navbar />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar activePage={activePage} setActivePage={setActivePage} />
-        <main className="flex-1 overflow-y-auto p-4">{renderSection()}</main>
-      </div>
-    </div>
+   <div className="flex flex-col h-screen bg-gray-100">
+  <Navbar />
+  <div className="flex flex-1 overflow-hidden">
+    <Sidebar activePage={activePage} setActivePage={setActivePage} />
+    <main className="flex-1 ml-52 mt-3 p-10 overflow-y-auto bg-gray-50 rounded-tl-3xl">
+      {renderSection()}
+    </main>
+  </div>
+</div>
+
   );
 }

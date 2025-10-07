@@ -9,7 +9,8 @@ export default function Navbar() {
   const userEmail = "admin@happyhomes.com"; // hardcoded user email
 
   return (
-    <nav className="flex items-center justify-between bg-white shadow px-6 py-3 rounded-b-xl border-b border-gray-200">
+    <div className="w-full fixed top-0 left-0 ">
+    <nav className=" flex items-center justify-between bg-white shadow px-6 py-3 rounded-b-xl border-b border-gray-200">
       {/* Left: Logo & Title */}
       <div className="flex items-center gap-2 text-xl font-semibold text-gray-800">
         <div className="bg-green-100 p-2 rounded-lg border border-green-400">
@@ -37,5 +38,6 @@ export default function Navbar() {
         )}
       </div>
     </nav>
+    </div>
   );
 }
