@@ -147,7 +147,7 @@ export default function Header() {
 
           {/* Login */}
           <Link
-            href="/"
+            href="/welcome-page"
             className="border border-[#28B8AE] text-[#28B8AE] hover:bg-[#28B8AE] hover:text-white px-5 py-2 rounded-full font-semibold transition"
           >
             Login
