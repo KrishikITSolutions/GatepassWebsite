@@ -4,8 +4,39 @@ import Footer from '@/components/footer';
 import brochureFront from "../assets/gp2.png"
 import brochureBack from "../assets/gp1.png"
 import Header from '@/components/header';
+import { supabase } from './utils/supabase';
+import { useEffect, useState } from 'react'
+
+
+interface Visitor {
+  id: number
+  member_name: string
+  avatar_url: string
+  created_at: string
+}
+
 
 export default function Dashboard() {
+
+  const [users, setUsers] = useState<Visitor[]>([])
+
+   useEffect(() => {
+    const getUsers = async () => {
+      const { data, error } = await supabase
+        .from('resident_profiles')
+        .select('*')
+      if (error) {
+        console.error('Supabase error:', error)
+      } else {
+        console.log('Data:', data)
+        setUsers(data)
+      }
+    }
+
+    getUsers()
+  }, [])
+
+  console.log('Users are:', users)
 
   return (
     <div className="min-h-screen bg-white">
