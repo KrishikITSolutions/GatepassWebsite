@@ -15,7 +15,7 @@ export default function Header() {
   return (
     <>
       <header className="flex items-center justify-between px-4 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
-        {/* ========= Logo + Brand Name ========= */}
+        {/*  Logo + Brand Name */}
         <div className="flex items-center space-x-3 flex-shrink-0">
           <Link href="/" aria-label="Go to home" className="flex items-center">
             <Image
@@ -32,7 +32,7 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* ========= Center Menu ========= */}
+        {/* Center Menu */}
         <div className="flex-1 flex justify-center hidden md:flex">
           <nav className="flex items-center space-x-10 font-semibold text-lg text-gray-700">
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
@@ -46,31 +46,31 @@ export default function Header() {
               </span>
               <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
                 <Link
-                  href="/visitor-managment-system"
+                  href="/services/visitor-managment-system"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Visitor Management System
                 </Link>
                 <Link
-                  href="/payments"
+                  href="/services/payments"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Payments
                 </Link>
                 <Link
-                  href="/resident-welfare-association"
+                  href="/services/resident-welfare-association"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Resident Welfare Association
                 </Link>
                 <Link
-                  href="/smart-daily-help"
+                  href="/services/smart-daily-help"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Smart Daily Help & Visitor Alerts
                 </Link>
                 <Link
-                  href="/instant-security-support"
+                  href="/services/instant-security-support"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Instant Security Support
@@ -85,37 +85,37 @@ export default function Header() {
               </span>
               <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
                 <Link
-                  href="/privacy-policy"
+                  href="/about-us/privacy-policy"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Privacy Policy
                 </Link>
                 <Link
-                  href="/privacy-summary"
+                  href="/about-us/privacy-summary"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Privacy Summary
                 </Link>
                 <Link
-                  href="/terms-of-service"
+                  href="/about-us/terms-of-service"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Terms of Service
                 </Link>
                 <Link
-                  href="/terms-of-service-summary"
+                  href="/about-us/terms-of-service-summary"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Terms Summary
                 </Link>
                 <Link
-                  href="/refund-policy"
+                  href="/about-us/refund-policy"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Refund Policy
                 </Link>
                 <Link
-                  href="/cancellation-policy"
+                  href="/about-us/cancellation-policy"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Cancellation Policy
@@ -129,7 +129,7 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* ========= Right Actions  ========= */}
+        {/*  Right Actions  */}
         <div className="hidden md:flex items-center space-x-5">
           {/* Phone */}
           <Link
@@ -147,7 +147,7 @@ export default function Header() {
 
           {/* Login */}
           <Link
-            href="/"
+            href="/welcome"
             className="border border-[#28B8AE] text-[#28B8AE] hover:bg-[#28B8AE] hover:text-white px-5 py-2 rounded-full font-semibold transition"
           >
             Login
@@ -161,7 +161,7 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* ========= Mobile Menu Button ========= */}
+        {/*  Mobile Menu Button  */}
         <div className="md:hidden">
           <button
             aria-label="Toggle Menu"
@@ -191,7 +191,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* ========= Mobile Dropdown Menu  ========= */}
+      {/* Mobile Dropdown Menu  */}
       {/* This block is md:hidden and will be visually hidden when isMenuOpen is false */}
       <div
         id="mobile-menu"
