@@ -7,7 +7,7 @@ export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
         <Header />
-      <main className="max-w-4xl mx-auto px-4 md:px-0 py-10 text-gray-800 flex-grow">
+      <main className="max-w-4xl mx-auto px-4 md:px-0 py-10 text-gray-800 flex-grow select-none" onContextMenu={(e) => e.preventDefault()}>
         <h1 className="text-3xl md:text-4xl font-bold mb-6">Terms of Service</h1>
         <p className="mb-6">
           Welcome to <strong>gatePass.ai</strong>
