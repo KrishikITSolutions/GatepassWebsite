@@ -1,59 +1,103 @@
 "use client";
 
-import { useState } from "react";
-import { FileDown } from "lucide-react";
+import React, { useState } from "react";
+import { downloadData, DownloadFormat } from "../app/utils/downloadHelper";
+import { X, Download } from "lucide-react";
 
 interface DownloadButtonProps {
-  category?: string | null;
-  onDownload: (type: string) => void;
+  fileName: string;
+  data: any[];
 }
 
-export default function DownloadButton({ category, onDownload }: DownloadButtonProps) {
-  const [showConfirm, setShowConfirm] = useState(false);
+const DownloadButton: React.FC<DownloadButtonProps> = ({ fileName, data }) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState<DownloadFormat | null>(null);
 
-  const handleConfirm = (confirm: boolean) => {
-    if (confirm) {
-      onDownload("PDF");
+  const handleDownload = async (format: DownloadFormat) => {
+    setLoading(format);
+    try {
+      await downloadData(fileName, data, format);
+      setOpen(false); // Close popup after download
+    } catch (err) {
+      console.error("❌ Download failed:", err);
+      alert("Download failed. Please try again!");
+    } finally {
+      setLoading(null);
     }
-    setShowConfirm(false);
   };
 
   return (
-    <div className="relative">
+    <>
       {/* Main Download Button */}
       <button
-        onClick={() => setShowConfirm(true)}
-        className="flex items-center gap-2 px-5 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-2 bg-[#28B8AE]/90 hover:bg-blue-700 text-white px-5 py-2 rounded-full shadow-md transition-all duration-200"
       >
-        <FileDown className="w-5 h-5" />
-        Download PDF
+        <Download size={18} />
+        Download
       </button>
 
-      {/* Confirmation Popup */}
-      {showConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-xl p-6 w-80 shadow-lg border border-gray-300">
-            <p className="text-center text-gray-800 mb-4 font-medium">
-              Are you sure you want to download?
-            </p>
-            <div className="flex justify-between">
+      {/* Popup Modal */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-2xl shadow-lg w-80 text-center relative animate-fadeIn">
+            {/* Close Button */}
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-lg font-semibold mb-4 text-gray-800">
+              Choose Download Format
+            </h2>
+
+            <div className="flex flex-col gap-3">
+              {/* CSV Button */}
               <button
-                onClick={() => handleConfirm(true)}
-                className="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                onClick={() => handleDownload("csv")}
+                className={`w-full py-2 rounded-full text-white transition ${
+                  loading === "csv"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600"
+                }`}
+                disabled={!!loading}
               >
-                Yes
+                {loading === "csv" ? "Generating..." : "Download CSV"}
               </button>
+
+              {/* Excel Button */}
               <button
-                onClick={() => handleConfirm(false)}
-                className="px-3 py-1.5 bg-gray-300 text-gray-800 text-sm rounded hover:bg-gray-400"
+                onClick={() => handleDownload("xlsx")}
+                className={`w-full py-2 rounded-full text-white transition ${
+                  loading === "xlsx"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-500 hover:bg-green-600"
+                }`}
+                disabled={!!loading}
               >
-                Cancel
+                {loading === "xlsx" ? "Generating..." : "Download Excel"}
+              </button>
+
+              {/* PDF Button */}
+              <button
+                onClick={() => handleDownload("pdf")}
+                className={`w-full py-2 rounded-full text-white transition ${
+                  loading === "pdf"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-red-600"
+                }`}
+                disabled={!!loading}
+              >
+                {loading === "pdf" ? "Generating..." : "Download PDF"}
               </button>
             </div>
           </div>
         </div>
-
       )}
-    </div>
+    </>
   );
-}
+};
+
+export default DownloadButton;

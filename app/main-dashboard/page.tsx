@@ -4,8 +4,9 @@
 import { useState } from "react";
 import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
-
+import ResidentCount from "../residents/page";
 import Dashboard from "../dashboard/page";
+import PaymentsDetails from "../payments-details/page";
 
 import VisitorManagementSystem from "../v-m-s/page";
 
@@ -18,10 +19,12 @@ export default function AdminDashboard() {
   const renderSection = () => {
     switch (activePage) {
 
-      
+       case "Residents":
+       return <ResidentCount/>;
         case "V_M_S":
         return <VisitorManagementSystem />;
-        
+        case"Payments":
+        return <PaymentsDetails/>
 
     
       default:

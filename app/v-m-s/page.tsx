@@ -1,10 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Truck, User, Car, Hammer, UserCheck } from "lucide-react";
 import DownloadButton from "@/components/download";
+import { supabase } from "../utils/supabase";
+import { motion } from "framer-motion";
 
-// Categories
+interface Visitor {
+  id: number;
+  society_id: string;
+  member_name: string;
+  guest_type: string;
+  start_date: string;
+  ride_company?: string;
+  type?: string;
+}
+
 const categories = [
   { name: "Deliveries", icon: Truck, color: "bg-indigo-100", textColor: "text-indigo-600" },
   { name: "Visitors", icon: User, color: "bg-green-100", textColor: "text-green-600" },
@@ -15,43 +26,109 @@ const categories = [
 
 // Fields for DownloadButton
 const categoryFields: Record<string, string[]> = {
-  Deliveries: ["name", "date", "time", "flat", "type"],
-  Visitors: ["name", "flat", "phone"],
-  Cabs: ["cabNo", "driver", "time"],
-  Workers: ["name", "job", "shift", "time"],
-  "Daily Help": ["name", "job", "shift", "time"],
+  Deliveries: ["member_name", "guest_type", "start_date", "ride_company", "type"],
+  Visitors: ["member_name", "guest_type", "start_date"],
+  Cabs: ["member_name", "guest_type", "start_date", "ride_company"],
+  Workers: ["member_name", "guest_type", "start_date"],
+  "Daily Help": ["member_name", "guest_type", "start_date", "ride_company", "type"],
 };
 
 export default function VisitorManagementSystem() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"preapproval" | "guardentries" | null>(null);
   const [filter, setFilter] = useState("1 Day");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [totalEntries, setTotalEntries] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<"preapproval" | "guardentries">("preapproval"); // default tab
+  const [categoryData, setCategoryData] = useState<Visitor[]>([]);
 
-  // Handle download
-  const handleDownload = (fields: string[]) => {
-    alert(`${selectedCategory} PDF downloaded with fields: ${fields.join(", ")}`);
+  // Fetch data dynamically based on filter
+  const fetchCategoryData = async () => {
+    if (!selectedCategory) return;
+
+    try {
+      const now = new Date();
+      let startISO = "";
+      let endISO = new Date().toISOString();
+
+      if (filter === "1 Day") {
+        startISO = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+      } else if (filter === "7 Days") {
+        startISO = new Date(now.setDate(now.getDate() - 6)).toISOString();
+      } else if (filter === "30 Days") {
+        startISO = new Date(now.setDate(now.getDate() - 29)).toISOString();
+      } else if (filter === "Custom" && startDate && endDate) {
+        startISO = new Date(startDate).toISOString();
+        endISO = new Date(endDate).toISOString();
+      } else {
+        return;
+      }
+
+      const guestTypeMap: Record<string, string> = {
+        Deliveries: "delivery",
+        "Daily Help": "dailyhelp",
+        Visitors: "visitor",
+        Cabs: "cab",
+        Workers: "workers",
+      };
+
+      let query = supabase
+        .from("visitors_enrtries")
+        .select("*")
+        .eq("society_id", "A_DC0_BLR_01")
+        .gte("start_date", startISO)
+        .lte("start_date", endISO);
+
+      if (selectedCategory === "Visitors") {
+        if (activeTab === "preapproval") {
+          query = query.eq("guest_type", "guest");
+        } else if (activeTab === "guardentries") {
+          query = query.eq("guest_type", "visitor");
+        }
+      } else {
+        const guestType = guestTypeMap[selectedCategory] || selectedCategory.toLowerCase();
+        query = query.eq("guest_type", guestType);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      setCategoryData(data || []);
+      setTotalEntries(data?.length || 0);
+    } catch (err) {
+      console.error("Error fetching category data:", err);
+    }
   };
 
-  // Random total entries calculation
-  const totalEntries = Math.floor(Math.random() * 200 + 20);
+  useEffect(() => {
+    if (selectedCategory) fetchCategoryData();
+  }, [selectedCategory, filter, startDate, endDate, activeTab]);
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Visitor Management System</h1>
-
-      {/* Category Cards (3 in first row, 2 in second row) */}
-      <div className="grid grid-cols-1 p- sm:grid-cols-3 lg:grid-cols-3 gap-6 mb-6">
+       <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center relative z-10"
+      >
+        <h1 className="text-4xl font-bold tracking-tight text-gray-800">
+            Visitor Management System
+        </h1>
+      
+      </motion.div>
+      {/* Category Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6 mb-6 mt-10">
         {categories.map((cat) => (
           <div
             key={cat.name}
             onClick={() => {
               setSelectedCategory(cat.name);
-              setActiveTab(null);
               setFilter("1 Day");
               setStartDate("");
               setEndDate("");
+              setActiveTab("preapproval");
             }}
             className="cursor-pointer p-8 rounded-2xl shadow hover:shadow-xl transition flex flex-col items-center justify-center"
           >
@@ -67,7 +144,6 @@ export default function VisitorManagementSystem() {
       {selectedCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-3xl w-full max-w-2xl p-8 shadow-2xl relative">
-            {/* Close button */}
             <button
               onClick={() => setSelectedCategory(null)}
               className="absolute top-5 right-5 text-gray-500 hover:text-gray-700 font-bold text-3xl"
@@ -75,14 +151,8 @@ export default function VisitorManagementSystem() {
               ×
             </button>
 
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-              {selectedCategory}
-            </h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">{selectedCategory}</h2>
 
-
-
-            {/* Filter section */}
-            {/* Tabs only for Visitors */}
             {selectedCategory === "Visitors" && (
               <div className="flex justify-center gap-4 mb-6">
                 <div
@@ -90,8 +160,10 @@ export default function VisitorManagementSystem() {
                   onClick={() => setActiveTab("preapproval")}
                 >
                   <span
-                    className={`font-medium $
-          activeTab === "preapproval" ? "text-white bg-[#28B8AE] hover:bg-[#219c93] text-white px-5 py-2 rounded-full transition shadow-md`}
+                    className={`font-medium ${activeTab === "preapproval"
+                        ? "text-white bg-[#28B8AE] hover:bg-[#219c93] px-5 py-2 rounded-full transition shadow-md"
+                        : ""
+                      }`}
                   >
                     Pre-Approval
                   </span>
@@ -101,8 +173,10 @@ export default function VisitorManagementSystem() {
                   onClick={() => setActiveTab("guardentries")}
                 >
                   <span
-                    className={`font-medium $
-          activeTab === "guardentries" ? "text-white bg-[#28B8AE] hover:bg-[#219c93] text-white px-5 py-2 rounded-full transition shadow-md`}
+                    className={`font-medium ${activeTab === "guardentries"
+                        ? "text-white bg-[#28B8AE] hover:bg-[#219c93] px-5 py-2 rounded-full transition shadow-md"
+                        : ""
+                      }`}
                   >
                     Guard Entries
                   </span>
@@ -110,131 +184,81 @@ export default function VisitorManagementSystem() {
               </div>
             )}
 
-            {/* Filter popup */}
-            {(selectedCategory !== "Visitors" || activeTab) && (
-              <div className="cursor-pointer p-8 rounded-2xl shadow hover:shadow-xl transition bg-white">
-                <div className="flex justify-between items-center mb-4">
-                  <p className="text-gray-700 font-medium">
-                    {selectedCategory !== "Visitors"
-                      ? "Filter Entries"
-                      : activeTab === "preapproval"
-                        ? "Filter Pre-Approval"
-                        : "Filter Guard Entries"}
-                  </p>
-                  {selectedCategory === "Visitors" && (
-                    <button
-                      className="text-gray-500 hover:text-gray-700 font-bold"
-                      onClick={() => setActiveTab(null)}
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
+            <select
+              className="w-full border rounded-full p-3 mb-4"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="1 Day">1 Day</option>
+              <option value="7 Days">7 Days</option>
+              <option value="30 Days">30 Days</option>
+              <option value="Custom">Custom</option>
+            </select>
 
-                {/* Filter select */}
-                <select
-                  className="w-full border rounded-full p-3 mb-4"
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
+            {filter === "Custom" && (
+              <div className="flex gap-4 mb-4">
+                <input
+                  type="date"
+                  className="w-1/2 border rounded p-2"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <input
+                  type="date"
+                  className="w-1/2 border rounded p-2"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded-md"
+                  onClick={fetchCategoryData}
                 >
-                  <option value="1 Day">1 Day</option>
-                  <option value="7 Days">7 Days</option>
-                  <option value="30 Days">30 Days</option>
-                  <option value="Custom">Custom</option>
-                </select>
-
-                {filter === "Custom" && (
-                  <div className="flex gap-4 mb-4">
-                    <input
-                      type="date"
-                      className="w-1/2 border rounded p-2"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                    />
-                    <input
-                      type="date"
-                      className="w-1/2 border rounded p-2"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                    />
-                  </div>
-                )}
-
-                {/* Total entries */}
-                <div className="text-center py-6 bg-gray-50 rounded-xl border border-gray-200 mb-6 shadow-inner">
-                  {(() => {
-                    const total = Math.floor(Math.random() * 200 + 20); // random simulated total
-                    const formattedStart = startDate
-                      ? new Date(startDate).toLocaleDateString("en-GB")
-                      : "";
-                    const formattedEnd = endDate
-                      ? new Date(endDate).toLocaleDateString("en-GB")
-                      : "";
-
-                    switch (filter) {
-                      case "1 Day":
-                        return (
-                          <p className="text-gray-700 font-semibold">
-                            Total {selectedCategory} entries for today:{" "}
-                            <span className="text-[#28B8AE]">{total}</span>
-                          </p>
-                        );
-
-                      case "7 Days":
-                        return (
-                          <p className="text-gray-700 font-semibold">
-                            Total {selectedCategory} entries for the last 7 days:{" "}
-                            <span className="text-[#28B8AE]">{total}</span>
-                          </p>
-                        );
-
-                      case "30 Days":
-                        return (
-                          <p className="text-gray-700 font-semibold">
-                            Total {selectedCategory} entries for the last 30 days:{" "}
-                            <span className="text-[#28B8AE]">{total}</span>
-                          </p>
-                        );
-
-                      case "Custom":
-                        if (startDate && endDate) {
-                          return (
-                            <p className="text-gray-700 font-semibold"> 
-                              Total {selectedCategory} entries from{" "}
-                              <span className="font-semibold">{formattedStart}</span> to{" "}
-                              <span className="font-semibold">{formattedEnd}</span>:{" "}
-                              <span className="text-[#28B8AE]">{total}</span>
-                            </p>
-                          );
-                        } else {
-                          return (
-                            <p className="text-gray-500 italic">
-                              Please select a valid custom date range.
-                            </p>
-                          );
-                        }
-
-                      default:
-                        return null;
-                    }
-                  })()}
-                </div>
-
-
-                {/* Download button */}
-                <div className="flex justify-end">
-                  <DownloadButton
-                    category={selectedCategory}
-                    onDownload={() => alert(`Downloaded ${selectedCategory} PDF`)}
-                  />
-                </div>
-
+                  Apply
+                </button>
               </div>
             )}
 
+            <div className="text-center py-6 bg-gray-50 rounded-xl border border-gray-200 mb-6 shadow-inner">
+              {filter === "Custom" && (!startDate || !endDate) ? (
+                <p className="text-gray-500 italic">Please select a valid custom date range.</p>
+              ) : (
+                <p className="text-gray-700 font-semibold">
+                  Total {selectedCategory} entries{" "}
+                  {selectedCategory === "Visitors"
+                    ? activeTab === "preapproval"
+                      ? "(Pre-Approval) "
+                      : "(Guard Entries) "
+                    : ""}
+                  {filter === "1 Day" && "for today"}
+                  {filter === "7 Days" && "for the last 7 days"}
+                  {filter === "30 Days" && "for the last 30 days"}
+                  {filter === "Custom" &&
+                    `from ${new Date(startDate).toLocaleDateString("en-GB")} to ${new Date(
+                      endDate
+                    ).toLocaleDateString("en-GB")}`}{" "}
+                  : <span className="text-[#28B8AE]">{totalEntries}</span>
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              {/* Download Button */}
+              <div className="flex justify-end">
+                <DownloadButton
+                  data={categoryData.map((item) => ({
+                    Name: item.member_name,
+                    Type: item.guest_type,
+                    Date: new Date(item.start_date).toLocaleDateString("en-GB"),
+                  }))}
+                  fileName={`${selectedCategory || "data"}-export`}
+                />
+              </div>
+
+
+            </div>
           </div>
         </div>
       )}
     </div>
   );
-}
+}  

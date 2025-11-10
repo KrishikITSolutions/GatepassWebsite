@@ -28,7 +28,7 @@ export default function Welcome() {
       {/* Center button */}
       <button
         onClick={handleClick}
-        className="relative z-10 px-8 py-4 text-xl font-semibold text-white bg-indigo-600 rounded-2xl shadow-lg hover:bg-indigo-700 transition duration-300"
+        className="relative z-10 px-8 py-4 text-xl font-semibold text-white bg-indigo-600 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300"
       >
         Your Community Login Portal
       </button>

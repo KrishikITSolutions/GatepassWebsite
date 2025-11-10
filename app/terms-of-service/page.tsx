@@ -3,158 +3,321 @@ import React from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
-export default function TermsOfService() {
+export default function TermsAndConditions() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
-        <Header />
-      <main className="max-w-4xl mx-auto px-4 md:px-0 py-10 text-gray-800 flex-grow">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">Terms of Service</h1>
-        <p className="mb-6">
-          Welcome to <strong>gatePass.ai</strong>
-        </p>
-        <p className="mb-6">
-          These Terms of Service (“Terms”) govern your use of our mobile application, website, and related services
-          (collectively, the “Platform”). By accessing or using the Platform, you agree to these Terms. If you do not
-          agree, please do not use the Platform.
-        </p>
+      <Header />
+      <main
+        className="max-w-5xl mx-auto px-4 md:px-0 py-10 text-gray-800 flex-grow select-none"
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        <h1 className="text-3xl md:text-4xl font-bold mb-6">
+          gatePass.Ai Terms and Conditions
+        </h1>
 
-        <h2 className="text-2xl font-bold mt-10 mb-3">1. Definitions</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>
-            <strong>“User”</strong> refers to any individual or entity using GatePass.ai, including residents, guests,
-            facility staff, security guards, RWAs, and administrators.
-          </li>
-          <li>
-            <strong>“We,” “Us,” or “GatePass.ai”</strong> refers to the company operating the Platform.
-          </li>
-          <li>
-            <strong>“Community”</strong> means a housing society, apartment complex, gated community, or similar
-            residential entity onboarded onto GatePass.ai.
-          </li>
-        </ul>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">2. Eligibility</h2>
-        <p>
-          To use the Platform, you must be:
-          <br />– At least 18 years old and competent to contract under Indian law.
-          <br />– Authorized by your Community or RWA, where applicable.
-        </p>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">3. User Account</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>Users may need to register by providing accurate personal details.</li>
-          <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
-          <li>GatePass.ai is not liable for any loss or damage from unauthorized account use.</li>
-        </ul>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">4. Services Offered</h2>
-        <p>
-          GatePass.ai offers features including but not limited to:
+        <p className="text-lg mb-6">
+          <strong>Last Updated: October 2025</strong>
           <br />
-          – Visitor management<br />
-          – Resident directories<br />
-          – Daily help tracking<br />
-          – Vehicle and delivery monitoring<br />
-          – Intercom replacement and emergency alerting
-        </p>
-        <p className="mt-2">
-          Features may evolve, and we reserve the right to add, modify, or remove features.
+          <br/>
+          Welcome to <strong>GatePass.ai</strong> — an <strong>AI-powered digital gate pass and
+          visitor management system</strong> that helps communities, apartments, and institutions
+          manage visitors and materials securely and efficiently.
+          <br />
+          <br/>
+          These <strong>Terms and Conditions (“Terms”)</strong> govern your use of the <strong>GatePass.ai app,
+          website, and related services </strong>(collectively referred to as the “Platform”).
+          <br />
+          By accessing or using the Platform, you agree that you have read, understood, and
+          accepted these Terms. 
+          <br/>If you do not agree, please discontinue using <strong>GatePass.ai</strong> immediately.
         </p>
 
-        <h2 className="text-2xl font-bold mt-10 mb-3">5. Consent and Data Privacy</h2>
-        <ul className="list-disc pl-6 space-y-2">
+        {/* 1. Definitions */}
+        <h2 className="text-2xl font-semibold mb-3">1. Definitions</h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
           <li>
-            By using the Platform, you consent to the collection, processing, and use of your personal data in
-            accordance with our <a href="/privacypolicy" className="text-[#28B8AE] underline">Privacy Policy</a>.
+            <strong>User:</strong> Any individual or organization using<strong> GatePass.ai</strong>,
+            including residents, visitors, security guards, facility staff, RWAs,
+            administrators, or institutions.
           </li>
           <li>
-            We comply with the <strong>DPDP Act, 2023</strong> and other applicable Indian data protection laws.
+            <strong>Community:</strong> Any housing society, school, office complex,
+            factory, or organization registered on <strong>GatePass.ai</strong>.
           </li>
           <li>
-            RWAs and administrators are required to obtain valid user consent before uploading or linking
-            resident/user information.
+            <strong>"We", "Us", "Our", or "GatePass.ai"</strong> Refers to the company operating
+            and maintaining the<strong> GatePass.ai digital security and visitor management
+            platform.</strong>
           </li>
         </ul>
 
-        <h2 className="text-2xl font-bold mt-10 mb-3">6. User Obligations</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>Use the Platform only for lawful purposes.</li>
-          <li>Do not misuse, reverse-engineer, hack, or disrupt the Platform.</li>
-          <li>Keep your profile data accurate and updated.</li>
+        {/* 2. Eligibility */}
+        <h2 className="text-2xl font-semibold mb-3">2. Eligibility</h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <p>To use <strong>GatePass.ai</strong>, you must: </p>
+          <li>Be at least 18 years of age and competent to contract under Indian law.</li>
+          <li>
+            Be authorized by your respective <strong>Community, Institution, or RWA</strong> where
+            applicable.
+          </li>
+          <li>Ensure that children or junior residents use the app under adult supervision.</li>
+          <li>
+            If you access the Platform on behalf of an organization, you confirm that you
+            have the authority to bind that entity to these Terms.
+          </li>
         </ul>
 
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">7. Fees and Payments</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>Certain features may be chargeable to Communities or users.</li>
-          <li>Fees will be clearly communicated, and invoices may be shared with RWAs.</li>
-          <li>No hidden charges will be levied without prior consent.</li>
+        {/* 3. User Account */}
+        <h2 className="text-2xl font-semibold mb-3">3. User Account</h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>
+            Users may need to register and provide accurate personal details to use
+            <strong> GatePass.ai</strong> features.
+          </li>
+          <li>
+            You are responsible for maintaining the confidentiality of your login
+            credentials and account information.
+          </li>
+          <li>Any activity under your account is your responsibility.</li>
+          <li>
+            <strong>GatePass.ai</strong> shall not be liable for any loss or damage caused by unauthorized
+            account use.
+          </li>
         </ul>
 
-        <h2 className="text-2xl font-bold mt-10 mb-3">8. Third-Party Services</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>We may integrate with third-party services (e.g., payment gateways, emergency contacts).</li>
-          <li>GatePass.ai is not responsible for external service reliability or data use once redirected to third-party platforms.</li>
+        {/* 4. Services */}
+        <h2 className="text-2xl font-semibold mb-3">4. Services We Provide</h2>
+        <p className="mb-3">
+          <strong>GatePass.ai </strong>provides <strong> smart digital tools</strong> for visitor and material management
+          within communities and institutions. Core features include:
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>Digital visitor entry and approval system</li>
+          <li>Resident and staff directories</li>
+          <li>Daily help and attendance tracking</li>
+          <li>Delivery and vehicle management</li>
+          <li>Material / gate pass management for goods</li>
+          <li>Emergency alerts and broadcast notifications</li>
         </ul>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">9. Termination</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>RWAs may request access revocation for a user within their community.</li>
-          <li>Users may deactivate their account at any time through the app or by written request.</li>
-          <li>We may suspend or terminate accounts that breach these Terms or applicable laws.</li>
-        </ul>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">10. No Resale of Service</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>You agree not to reproduce, duplicate, copy, sell, resell or exploit any portion of the service for commercial purposes.</li>
-          <li>GatePass.ai reserves the right to modify or discontinue the Service with notice. You may retain your data during this time, but GatePass.ai is not liable for any resulting damages.</li>
-        </ul>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">11. Disclaimer of Warranties and Limitation of Liability</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>GatePass.ai is provided on an “as is” and “as available” basis without warranties of any kind—express or implied.</li>
-          <li>We do not guarantee uninterrupted, secure, or error-free operation of the Platform.</li>
-          <li>Responsibility for obtaining consent for sharing resident data lies with the Direct Customer (e.g., RWA).</li>
-          <li>We are not liable for any direct or indirect damages, including theft or breaches within premises.</li>
-          <li>Our total liability is limited to the fees actually paid by you to us for the services in question.</li>
-          <li>Nothing on the platform constitutes professional or legal advice.</li>
-        </ul>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">12. Indemnity</h2>
         <p className="mb-6">
-          You agree to indemnify and hold harmless GatePass.ai and its affiliates from any claims, damages, or losses arising from your use or misuse of the Platform.
+          Features may evolve over time — <strong>GatePass.ai</strong> may add, modify, or remove
+          functionalities to enhance user experience and service quality.
         </p>
 
-        <h2 className="text-2xl font-bold mt-10 mb-3">13. Intellectual Property</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>All content, branding, trademarks, and source code are property of GatePass.ai.</li>
-          <li>You may not copy, distribute, or reuse any part of the Platform without express permission.</li>
+        {/* 5. Data Privacy */}
+        <h2 className="text-2xl font-semibold mb-3">5. Data Privacy and Consent</h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>
+            We collect limited information such as name, phone number, flat/office ID,
+            visitor details, and access logs solely for community security and operational
+            management.
+          </li>
+          <li>
+           <strong>GatePass.ai</strong> complies with India’s{" "}
+            <a
+              href="https://www.meity.gov.in/static/uploads/2024/06/2bf1f0e9f04e6fb4f8fef35e82c42aa5.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline hover:text-blue-800"
+            >
+              <strong>Digital Personal Data Protection Act (DPDP) 2023</strong>
+            </a>{" "}
+            and other applicable data protection laws.
+          </li>
+          <li>
+            Communities (RWAs, institutions) must obtain valid user consent before
+            uploading or sharing data.
+          </li>
+          <li>
+            You can control what information is visible to guards, admins, or other users.
+          </li>
+          <li>
+            For full details, please review our{" "}
+            <a href="/privacy-policy" className="text-blue-600 underline hover:text-blue-800">
+              Privacy Policy
+            </a>
+            .
+          </li>
         </ul>
 
-        <h2 className="text-2xl font-bold mt-10 mb-3">14. Modifications</h2>
+        {/* 6. User Responsibilities */}
+        <h2 className="text-2xl font-semibold mb-3">6. User Responsibilities</h2>
+        <p className="mb-3">By using <strong>GatePass.ai</strong>, you agree to:</p>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>Use the platform lawfully and responsibly.</li>
+          <li>Keep your profile accurate and up to date.</li>
+          <li>Not misuse, hack, reverse-engineer, or disrupt the app or its servers.</li>
+          <li>
+            Respect others’ privacy and avoid sharing personal data without permission.
+          </li>
+        </ul>
         <p className="mb-6">
-          GatePass.ai reserves the right to modify these Terms at any time. Updated versions will be notified via the app or website and will take effect upon publication.
+          <strong>GatePass.ai </strong>reserves the right to suspend or terminate accounts that violate
+          these responsibilities.
         </p>
 
-        <h2 className="text-2xl font-bold mt-10 mb-3">15. Governing Law</h2>
-        <p className="mb-6">
-          These Terms shall be governed by the laws of India. Any disputes shall be subject to the jurisdiction of the courts of Bengaluru, Karnataka.
-        </p>
-
-        <h2 className="text-2xl font-bold mt-10 mb-3">16. Contact Us</h2>
-        <p className="mb-2">
-          In case of any grievance arising from the use of the Platform, please contact the Grievance Officer:
-        </p>
-        <ul className="pl-6 space-y-2">
-          <li><strong>Email:</strong> <a href="mailto:gatepassai@gmail.com" className="text-[#28B8AE] underline">gatepassai@gmail.com</a></li>
-          <li><strong>Phone:</strong> 8331822131</li>
-          <li><strong>Address:</strong> 1/418-8-1, Opp Maruthi Nagar, Near Anjaneya Swamy Temple, Mundy Bazar, Cuddapah, Andhra Pradesh, India, 516001</li>
+        {/* 7. Fees */}
+        <h2 className="text-2xl font-semibold mb-3">7. Fees and Payments</h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>Most features of <strong>GatePass.ai</strong> are free for residents and individual users.</li>
+          <li>
+            Premium features may be subscribed to by RWAs, corporates, or institutions.
+          </li>
+          <li>All charges will be transparent, with no hidden fees.</li>
+          <li>
+            Payments, where applicable, will follow standard invoice or digital gateway
+            terms.
+          </li>
         </ul>
 
-        <p className="mt-6 italic">
-          By continuing to use GatePass.ai, you acknowledge that you have read, understood, and agreed to these Terms.
+        {/* 8. Third Party */}
+        <h2 className="text-2xl font-semibold mb-3">8. Third-Party Services</h2>
+        <p className="mb-6">
+          <strong>GatePass.ai</strong> may integrate with trusted third-party providers (such as payment
+          gateways, SMS APIs, or hardware integrations) to improve platform functionality.
+          While we ensure secure integrations,<strong> GatePass.ai</strong> is not responsible for the
+          privacy practices, reliability, or content of external platforms once you are
+          redirected there. (Examples: Razorpay for payments, Twilio for communication,
+          etc.)
         </p>
 
+        {/* 9. Termination */}
+        <h2 className="text-2xl font-semibold mb-3">
+          9. Termination and Account Deactivation
+        </h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>
+            Users can deactivate their GatePass.ai accounts anytime via the app or by
+            written request.
+          </li>
+          <li>
+            RWAs or authorized administrators may revoke access within their communities.
+          </li>
+          <li>
+            <strong>GatePass.ai</strong> may suspend or terminate accounts found in violation of these Terms
+            or engaged in misuse.
+          </li>
+          <li>
+            Upon termination, access will cease; however, limited data may be retained for
+            legal or security reasons.
+          </li>
+        </ul>
+
+        {/* 10. Prohibited Use */}
+        <h2 className="text-2xl font-semibold mb-3">10. Prohibited Use and Resale</h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>
+            Reproduce, duplicate, or resell any part of the <strong>GatePass.ai</strong> Platform for
+            commercial gain without written consent.
+          </li>
+          <li>
+            Misuse the Platform in a manner that affects its performance, users, or
+            reputation.
+          </li>
+        </ul>
+        <p className="mb-6">
+          <strong>GatePass.ai</strong> reserves the right to modify, suspend, or discontinue services with
+          prior notice. Users will have the option to retain or export their data before
+          discontinuation.
+        </p>
+
+        {/* 11. Disclaimer */}
+        <h2 className="text-2xl font-semibold mb-3">
+          11. Disclaimer and Limitation of Liability
+        </h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>
+            The <strong>GatePass.ai visitor management system</strong> is provided “as is” and “as
+            available,” without express or implied warranties.
+          </li>
+          <li>We do not guarantee uninterrupted, secure, or error-free operation.</li>
+          <li>Communities or administrators are responsible for obtaining user data consent.</li>
+          <li>
+           <strong> GatePass.ai</strong> shall not be liable for any indirect, incidental, or consequential
+            damages (including thefts, misuse, or onsite incidents).
+          </li>
+          <li>
+            Our maximum liability shall not exceed the total amount paid to <strong>GatePass.ai</strong> for
+            the concerned service.
+          </li>
+          <li>Nothing on this Platform constitutes legal, professional, or security advice.</li>
+        </ul>
+
+        {/* 12. Indemnity */}
+        <h2 className="text-2xl font-semibold mb-3">12. Indemnity</h2>
+        <p className="mb-6">
+          You agree to indemnify and hold harmless <strong>GatePass.ai</strong>, its employees, affiliates,
+          and partners against claims, losses, or damages resulting from:
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>Your misuse of the Platform</li>
+          <li>Violation of these Terms</li>
+          <li>Infringement of others’ rights</li>
+        </ul>
+
+        {/* 13. Intellectual Property */}
+        <h2 className="text-2xl font-semibold mb-3">13. Intellectual Property</h2>
+        <p className="mb-6">
+          <strong>All content, designs, trademarks, code, and logos</strong> within <strong>GatePass.ai</strong> are the
+          exclusive property of the company. You may not copy, alter, or reuse any content
+          without prior written consent.
+        </p>
+
+        {/* 14. Updates */}
+        <h2 className="text-2xl font-semibold mb-3">14. Updates and Modifications</h2>
+        <p className="mb-6">
+          <strong>GatePass.ai</strong> may update these Terms periodically to reflect product or legal
+          changes. Updates will be notified via the app or website, and will take effect
+          once published. Continued use after updates signifies your acceptance of the
+          revised Terms.
+        </p>
+
+        {/* 15. Governing Law */}
+        <h2 className="text-2xl font-semibold mb-3">15. Governing Law and Jurisdiction</h2>
+        <p className="mb-6">
+          These Terms are governed by the laws of <strong>India</strong>. 
+          <br/>
+          Any disputes will be subject to
+          the exclusive jurisdiction of the courts in <strong>Bengaluru, Karnataka</strong>.
+        </p>
+
+        {/* 16. Contact */}
+        <h2 className="text-2xl font-semibold mb-3">16. Contact and Grievance Redressal</h2>
+        <p className="mb-6">
+          For any concerns, complaints, or data rights requests, contact our <strong>Grievance
+          Officer:</strong>
+          <br />
+          <strong>Email:</strong>{" "}
+          <a href="mailto:gatepassai@gmail.com" className="text-blue-600 underline">
+            gatepassai@gmail.com
+          </a>
+          <br />
+          <strong>Phone:</strong>{" "}
+          <a href="tel:+918331822131" className="text-blue-600 underline">
+            +91 83318 22131
+          </a>
+          <br />
+          <strong>Address:</strong> 1/418-8-1, Opp. Maruthi Nagar, Near Anjaneya Swamy
+          Temple, Mundy Bazar, Cuddapah, Andhra Pradesh – 516001
+        </p>
+
+        {/* Summary */}
+        <h2 className="text-2xl font-semibold mb-3">Quick Summary (In-App Reference)</h2>
+        <ul className="list-disc pl-6 space-y-2 mb-6">
+          <li>
+            <strong>GatePass.ai</strong> collects only essential data to ensure safety and compliance with
+            Indian data laws.
+          </li>
+          <li>Most features are free; premium features apply to enterprise or RWA accounts.</li>
+          <li>You can delete your account anytime.</li>
+          <li>Misuse or unauthorized data sharing can lead to suspension.</li>
+          <li><strong>GatePass.ai</strong> is not liable for onsite incidents or local disputes.</li>
+        </ul>
+
+        <p>
+          By continuing to use <strong>GatePass.ai</strong>, you confirm that you have read, understood, and
+          accepted these Terms and Conditions.
+        </p>
       </main>
       <Footer />
     </div>

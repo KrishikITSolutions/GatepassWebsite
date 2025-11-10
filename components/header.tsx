@@ -27,7 +27,7 @@ export default function Header() {
               priority
             />
             <span className="text-3xl font-semibold text-[#28B8AE] tracking-wide relative top-[4px] ml-2">
-              GatePass
+              gatePass.Ai
             </span>
           </Link>
         </div>
@@ -90,24 +90,14 @@ export default function Header() {
                 >
                   Privacy Policy
                 </Link>
-                <Link
-                  href="/privacy-summary"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Privacy Summary
-                </Link>
+                
                 <Link
                   href="/terms-of-service"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
-                  Terms of Service
+                  Terms and Conditions
                 </Link>
-                <Link
-                  href="/terms-of-service-summary"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Terms Summary
-                </Link>
+                
                 <Link
                   href="/refund-policy"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
@@ -124,7 +114,7 @@ export default function Header() {
             </div>
 
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
-              Career
+              Help
             </Link>
           </nav>
         </div>
