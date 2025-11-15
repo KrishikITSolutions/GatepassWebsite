@@ -29,7 +29,7 @@ export default function Residents() {
   const [guards, setGuards] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const society_id = "A_VP0_BLR_02";
+  const society_id = "A_DC0_BLR_01";
 
   //  Fetch Residents
   const fetchResidents = async () => {

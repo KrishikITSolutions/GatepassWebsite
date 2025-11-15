@@ -1,30 +1,34 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, CircleX, AlertTriangle, CheckCircle } from "lucide-react";
 import { supabase } from "../utils/supabase";
-import { motion } from "framer-motion";
+import { CreditCard, CircleX, AlertTriangle, CheckCircle, Download } from "lucide-react";
 
 const tabs = [
   { name: "Total Paid", icon: CreditCard },
   { name: "Total Unpaid", icon: CircleX },
-  { name: "With Penalty", icon: AlertTriangle },
-  { name: "Without Penalty", icon: CheckCircle },
+  { name: "With Penalty Paid", icon: AlertTriangle },
+  { name: "Without Penalty Paid", icon: CheckCircle },
 ];
-
-interface PaymentRecord {
-  society_id: string;
-  paid_months: any[];
-}
 
 export default function Payments() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [allPayments, setAllPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const society_id = "A_MC2_BLR_102";
+  // filter states
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  // Fetch Payments
+  const society_id = "A_DC0_BLR_01";
+
+  // =============================
+  // Fetch Data
+  // =============================
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
   const fetchPayments = async () => {
     setLoading(true);
     try {
@@ -34,76 +38,110 @@ export default function Payments() {
         .eq("society_id", society_id);
 
       if (error) throw error;
-      setPayments(data || []);
+
+      const combined = data.flatMap((r) => r.paid_months || []);
+      setAllPayments(combined);
     } catch (err) {
       console.error("Error fetching payments:", err);
-      setPayments([]);
+      setAllPayments([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPayments();
-  }, []);
+  // =============================
+  // Filter Logic
+  // =============================
+  const getFilteredData = () => {
+    let filtered = allPayments;
 
-  // Calculate counts
-  const getCounts = () => {
-    let totalPaid = 0;
-    let totalUnpaid = 0;
-    let withPenalty = 0;
-    let withoutPenalty = 0;
+    // date filter
+    if (startDate)
+      filtered = filtered.filter(
+        (p) => new Date(p.payment_date) >= new Date(startDate)
+      );
+    if (endDate)
+      filtered = filtered.filter(
+        (p) => new Date(p.payment_date) <= new Date(endDate)
+      );
 
-    payments.forEach((record) => {
-      const months = record.paid_months || [];
-      if (months.length === 0) {
-        totalUnpaid += 1;
-      } else {
-        totalPaid += 1;
-        months.forEach((m: any) => {
-          if (m.penalty && m.penalty > 0) withPenalty++;
-          else withoutPenalty++;
-        });
+    switch (activeTab) {
+      case "Total Paid":
+        return filtered.filter((p) => p.amount_paid > 0);
+      case "With Penalty Paid":
+        return filtered.filter((p) => p.penalty_paid && p.penalty_paid > 0);
+      case "Without Penalty Paid":
+        return filtered.filter((p) => !p.penalty_paid || p.penalty_paid === 0);
+      case "Total Unpaid":
+        return getUnpaidMonths(filtered);
+      default:
+        return filtered;
+    }
+  };
+
+  const getUnpaidMonths = (paidData: any[]) => {
+    const allMonths = [
+      "january", "february", "march", "april", "may", "june",
+      "july", "august", "september", "october", "november", "december",
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const paidMap = new Set(paidData.map((p) => `${p.year}-${p.month?.toLowerCase()}`));
+
+    const unpaid: any[] = [];
+    const currentMonth = new Date().getMonth();
+    for (let i = 0; i <= currentMonth; i++) {
+      const m = allMonths[i];
+      if (!paidMap.has(`${currentYear}-${m}`)) {
+        unpaid.push({ month: m, year: currentYear });
       }
-    });
-
-    return { totalPaid, totalUnpaid, withPenalty, withoutPenalty };
+    }
+    return unpaid;
   };
 
-  const counts = getCounts();
-
-  const getPopupText = () => {
-    if (activeTab === "Total Paid")
-      return loading ? "Loading..." : `Total Paid: ${counts.totalPaid}`;
-    if (activeTab === "Total Unpaid")
-      return loading ? "Loading..." : `Total Unpaid: ${counts.totalUnpaid}`;
-    if (activeTab === "With Penalty")
-      return loading ? "Loading..." : `With Penalty: ${counts.withPenalty}`;
-    if (activeTab === "Without Penalty")
-      return loading ? "Loading..." :` Without Penalty: ${counts.withoutPenalty}`;
-    return "";
+  // =============================
+  // Download Handlers
+  // =============================
+  const handleDownload = (type: string) => {
+    const data = getFilteredData();
+    if (data.length === 0) {
+      alert("No data to download.");
+      return;
+    }
+    if (type === "csv") exportCSV(data);
+    else alert("PDF feature coming soon!");
   };
 
+  const exportCSV = (data: any[]) => {
+    const header = ["Month", "Year", "Amount", "Penalty", "Date"];
+    const rows = data.map((d) => [
+      d.month, d.year, d.amount_paid || "-", d.penalty_paid || "-", d.payment_date || "-",
+    ]);
+    const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${activeTab || "payments"}.csv`;
+    a.click();
+  };
+
+  // =============================
+  // Render
+  // =============================
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center"
-      >
-        <h1 className="text-4xl font-bold tracking-tight text-gray-800">
-          Payment Management System
-        </h1>
-      </motion.div>
+      <h1 className="text-3xl font-bold text-center text-[#28B8AE] mb-10">
+        Payment Management
+      </h1>
 
-      {/*  Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+      {/* Tabs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {tabs.map((tab) => (
           <div
             key={tab.name}
             onClick={() => setActiveTab(tab.name)}
-            className="cursor-pointer p-10 rounded-2xl bg-white shadow-md hover:shadow-xl transition-all hover:scale-[1.02] flex flex-col items-center justify-center"
+            className="cursor-pointer p-8 rounded-2xl bg-white shadow-md hover:shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center"
           >
             <div className="bg-[#28B8AE]/10 p-4 rounded-full mb-3">
               <tab.icon className="w-8 h-8 text-[#28B8AE]" />
@@ -113,10 +151,10 @@ export default function Payments() {
         ))}
       </div>
 
-      {/*  Popup */}
+      {/* Popup */}
       {activeTab && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-2xl p-10 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl relative">
             <button
               onClick={() => setActiveTab(null)}
               className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-3xl font-bold"
@@ -128,8 +166,56 @@ export default function Payments() {
               {activeTab}
             </h2>
 
-            <div className="text-center py-10 bg-gray-50 rounded-xl border border-gray-200 mb-6 shadow-inner">
-              <p className="text-gray-700 font-semibold">{getPopupText()}</p>
+            {/* Filters */}
+            <div className="flex flex-col gap-4 bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-inner">
+              <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                <div className="flex items-center gap-3">
+                  <label className="text-gray-600 text-sm">From:</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <label className="text-gray-600 text-sm">To:</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Download buttons */}
+              <div className="flex justify-center gap-3 mt-4">
+                <button
+                  onClick={() => handleDownload("csv")}
+                  className="flex items-center gap-2 bg-[#28B8AE] text-white px-5 py-2 rounded-full shadow hover:bg-[#239e97]"
+                >
+                  <Download size={18} /> CSV
+                </button>
+                <button
+                  onClick={() => handleDownload("pdf")}
+                  className="flex items-center gap-2 bg-[#28B8AE] text-white px-5 py-2 rounded-full shadow hover:bg-[#239e97]"
+                >
+                  <Download size={18} /> PDF
+                </button>
+              </div>
+            </div>
+
+            {/* Summary info */}
+            <div className="text-center mt-8">
+              {loading ? (
+                <p className="text-gray-500">Loading...</p>
+              ) : (
+                <p className="text-gray-700 font-semibold">
+                  {activeTab}: {getFilteredData().length} records found
+                </p>
+              )}
             </div>
           </div>
         </div>

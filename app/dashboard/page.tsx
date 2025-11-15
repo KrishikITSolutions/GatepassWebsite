@@ -89,7 +89,7 @@ export default function DashboardSection() {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F9FAFB] via-[#FFFFFF] to-[#F3F4F6] px-6 md:px-14 py-12 space-y-16 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#F9FAFB] via-[#FFFFFF] to-[#F3F4F6] px-6 md:px-14 py-7 space-y-16 relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#28B8AE]/10 rounded-full blur-3xl" />
 
@@ -159,40 +159,88 @@ const ChartCard = ({
   title: string;
   data: any[];
   colors: string[];
-}) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    transition={{ type: "spring", stiffness: 180, damping: 15 }}
-    className="bg-white/80 backdrop-blur-xl border border-gray-100 rounded-3xl p-6 shadow-lg transition-all"
-  >
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-lg font-semibold text-gray-700">{title}</h3>
-      <TrendingUp className="text-[#28B8AE] w-5 h-5" />
-    </div>
-    <ResponsiveContainer width="100%" height={280}>
-      <PieChart>
-        <Pie
-          data={data}
-          dataKey="value"
-          nameKey="name"
-          outerRadius={100}
-          innerRadius={55}
-          paddingAngle={3}
-          cornerRadius={8}
-          label
-        >
-          {data.map((_, i) => (
-            <Cell key={i} fill={colors[i % colors.length]} />
-          ))}
-        </Pie>
-        <Tooltip
-          contentStyle={{
-            borderRadius: 10,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-            backgroundColor: "#fff",
-          }}
-        />
-      </PieChart>
-    </ResponsiveContainer>
-  </motion.div>
-);
+}) => {
+  // ✅ Calculate total
+  const total = data.reduce((acc, cur) => acc + (cur.value || 0), 0);
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      transition={{ type: "spring", stiffness: 180, damping: 15 }}
+      className="bg-white/90 backdrop-blur-xl border border-gray-100 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all"
+    >
+      {/* ---- Header ---- */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold text-gray-700">{title}</h3>
+        <TrendingUp className="text-[#28B8AE] w-6 h-6" />
+      </div>
+
+      {/* ---- Pie Chart ---- */}
+      <div className="relative w-full h-[280px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={70}
+              outerRadius={110}
+              paddingAngle={4}
+              cornerRadius={8}
+              labelLine={false}
+              label={({ percent }) =>
+                percent > 0 ? `${(percent * 100).toFixed(0)}%` : ""
+              }
+            >
+              {data.map((_, i) => (
+                <Cell
+                  key={i}
+                  fill={`url(#color${i})`}
+                  stroke="#fff"
+                  strokeWidth={2}
+                />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: any, name: any) => [`${value}`, name]}
+              contentStyle={{
+                borderRadius: 10,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                backgroundColor: "#fff",
+              }}
+            />
+
+            {/* Gradients for better colors */}
+            {colors.map((c, i) => (
+              <defs key={i}>
+                <linearGradient id={`color${i}`} x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor={c} stopOpacity={0.8} />
+                  <stop offset="100%" stopColor={c} stopOpacity={0.5} />
+                </linearGradient>
+              </defs>
+            ))}
+          </PieChart>
+        </ResponsiveContainer>
+
+        {/* ---- Center Text ---- */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-3xl font-bold text-gray-800">{total}</span>
+          <span className="text-sm text-gray-500">Total</span>
+        </div>
+      </div>
+
+      {/* ---- Legend ---- */}
+      <div className="mt-6 flex flex-wrap justify-center gap-4">
+        {data.map((item, i) => (
+          <div key={i} className="flex items-center space-x-2">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: colors[i % colors.length] }}
+            />
+            <span className="text-sm text-gray-600">{item.name}</span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
