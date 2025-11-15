@@ -1,8 +1,9 @@
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+
 import ReactGA from "react-ga4";
-import React,{useEffect} from "react";
+import React, {useEffect} from "react";
 
 ReactGA.initialize("G-BL9LQDSL3V");
 
