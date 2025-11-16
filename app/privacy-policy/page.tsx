@@ -1,4 +1,5 @@
 "use client";
+"use client";
 import React from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -168,10 +169,11 @@ export default function PrivacyPolicy() {
           <a href="mailto:gatepassai@gmail.com" className="text-blue-600 underline">
             gatepassai@gmail.com
           </a>
+          
           <br />
           <strong>Phone:</strong>{" "}
-          <a href="tel:+918331822131" className="text-blue-600 underline">
-            +91 83318 22131
+          <a href="tel:+918050996382" className="text-blue-600 underline">
+            +91 8050996382
           </a>
         </p>
 

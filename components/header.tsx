@@ -90,14 +90,14 @@ export default function Header() {
                 >
                   Privacy Policy
                 </Link>
-                
+               
                 <Link
                   href="/terms-of-service"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
                   Terms and Conditions
                 </Link>
-                
+               
                 <Link
                   href="/refund-policy"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
@@ -183,12 +183,12 @@ export default function Header() {
 
       {/* ========= Mobile Dropdown Menu  ========= */}
       {/* This block is md:hidden and will be visually hidden when isMenuOpen is false */}
-      <div
-        id="mobile-menu"
-        className={`md:hidden bg-white shadow-md border-t border-gray-100 transition-all duration-300 ${
-          isMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
-        }`}
-      >
+     <div
+  id="mobile-menu"
+  className={`md:hidden fixed top-[64px] left-0 w-full bg-white shadow-lg border-t border-gray-200 transition-all duration-300 overflow-hidden z-50 ${
+    isMenuOpen ? "max-h-[100vh] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+  }`}
+>
         <nav className="flex flex-col p-4 space-y-3 font-semibold text-gray-700 text-base">
           {/* Home */}
           <Link
@@ -242,15 +242,11 @@ export default function Header() {
               <Link href="/privacy-policy" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
                 Privacy Policy
               </Link>
-              <Link href="/privacy-summary" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
-                Privacy Summary
-              </Link>
+              
               <Link href="/terms-of-service" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
-                Terms of Service
+                Terms and Conditions
               </Link>
-              <Link href="/terms-of-service-summary" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
-                Terms Summary
-              </Link>
+              
               <Link href="/refund-policy" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
                 Refund Policy
               </Link>

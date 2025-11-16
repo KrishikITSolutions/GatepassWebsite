@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "gatePass.ai",
+   title: "gatePass.ai",
   description: "AI-powered community management system",
   icons: {
     icon: "/logo2.png", //  Place your favicon file inside /public

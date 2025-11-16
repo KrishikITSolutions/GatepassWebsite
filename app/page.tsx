@@ -4,7 +4,7 @@ import Footer from "@/components/footer";
 import brochureFront from "../assets/gp2.png";
 import brochureBack from "../assets/gp1.png";
 import Header from "@/components/header";
-import buildings from "../assets/buildings.png";
+import buildings from "../assets/gpbg.jpg";
 
 //  Just use the image path (no <source />)
 // const BACKGROUND_IMAGE = "/gplogo.png"; // Place your image in /public/gplogo.png
@@ -29,9 +29,10 @@ export default function Dashboard() {
       {/* Hero Section */}
       <section className="relative z-10 px-6 md:px-20 flex flex-col md:flex-row items-center justify-between py-16 md:py-24 gap-12 max-w-7xl mx-auto text-white">
         {/* Left Section */}
-        <div className="w-full md:w-1/2 text-center md:text-left space-y-8 bg-black/40 backdrop-blur-md p-8 rounded-2xl shadow-xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
-            <span className="text-[#28B8AE]">AI</span>-powered Community <br /> Management System
+       <div className="w-full md:w-1/2 text-center md:text-left space-y-8 p-8 rounded-2xl shadow-xl">
+        
+           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
+            <span className="text-[#28B8AE]">Ai</span>-powered Community <br /> Management System
           </h1>
 
           <p className="text-lg md:text-xl text-gray-200 max-w-md mx-auto md:mx-0 leading-relaxed">
@@ -40,9 +41,7 @@ export default function Dashboard() {
             <span className="text-[#28B8AE] font-semibold">automation</span>.
           </p>
 
-          <button className="px-8 py-3 bg-[#28B8AE] text-white text-lg font-semibold rounded-full shadow-md hover:bg-[#239b96] transition-all duration-300 hover:scale-105">
-             Start Creating Free
-          </button>
+         
         </div>
 
         {/* Right Section - Brochures */}
