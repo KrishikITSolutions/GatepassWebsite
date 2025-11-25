@@ -11,7 +11,7 @@ const tabs = [
   { name: "With Penalty Paid", icon: AlertTriangle },
   { name: "Without Penalty Paid", icon: CheckCircle },
 ];
-
+console.log("Tabs:", tabs);
 export default function Payments() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [payments, setPayments] = useState<any[]>([]);
@@ -34,22 +34,38 @@ export default function Payments() {
     setLoading(true);
 
     try {
+      // ❗DO NOT FILTER BY DATE IN SUPABASE (because paid_months is an array)
       const { data, error } = await supabase
         .from("payment_details")
-        .select("society_id, paid_months")
+        .select("paid_months")
         .eq("society_id", society_id);
 
       if (error) throw error;
 
-      // Convert all rows' paid_months into a clean list
+      // Flatten data + date filtering
       const cleaned = data.flatMap((row) =>
-        (row.paid_months || []).map((pm: any) => ({
-          month: pm.month?.toLowerCase(),
-          year: pm.year,
-          amount_paid: pm.amount_paid || 0,
-          penalty_paid: pm.penalty_paid || 0,
-          payment_date: pm.payment_date || null,
-        }))
+        ((row.paid_months || []) as any[])
+          .filter((pm: any) => {
+            if (!pm.payment_date) return false; // skip invalid entries
+
+            const dt = new Date(pm.payment_date);
+            const start = startDate ? new Date(startDate) : null;
+            const end = endDate ? new Date(endDate) : null;
+
+            if (start && dt < start) return false;
+            if (end && dt > end) return false;
+
+            return true;
+          })
+          .map((pm: any) => ({
+            month: pm.month?.toLowerCase(),
+            year: pm.year,
+            amount_paid: pm.amount || 0,
+            penalty_paid: pm.penalty || 0,
+            total_paid: pm.total_paid,
+            payment_date: pm.payment_date,
+            transaction_id: pm.transaction_id,
+          }))
       );
 
       setPayments(cleaned);
@@ -62,39 +78,40 @@ export default function Payments() {
   };
 
   // ---------------------------------------------------
-  // FILTERED DATA BASED ON TAB & DATE
+  // FILTERED DATA BASED ON TAB
   // ---------------------------------------------------
-  const getFilteredData = () => {
-    let list = [...payments];
+ const getFilteredData = () => {
+  let list = [...payments];
 
-    // Apply date filter ONLY when payment_date exists
-    if (startDate)
-      list = list.filter(
-        (p) => p.payment_date && new Date(p.payment_date) >= new Date(startDate)
-      );
+  // -------- DATE FILTER LOGIC ----------
+  if (startDate) {
+    const from = new Date(startDate);
+    list = list.filter((p) => p.payment_date && new Date(p.payment_date) >= from);
+  }
 
-    if (endDate)
-      list = list.filter(
-        (p) => p.payment_date && new Date(p.payment_date) <= new Date(endDate)
-      );
+  if (endDate) {
+    const to = new Date(endDate);
+    list = list.filter((p) => p.payment_date && new Date(p.payment_date) <= to);
+  }
 
-    switch (activeTab) {
-      case "Total Paid":
-        return list.filter((p) => p.amount_paid > 0);
+  // -------- TAB LOGIC ----------
+  switch (activeTab) {
+    case "Total Paid":
+      return list.filter((p) => p.amount_paid > 0);
 
-      case "With Penalty Paid":
-        return list.filter((p) => p.penalty_paid > 0);
+    case "With Penalty Paid":
+      return list.filter((p) => p.penalty_paid > 0);
 
-      case "Without Penalty Paid":
-        return list.filter((p) => p.amount_paid > 0 && p.penalty_paid === 0);
+    case "Without Penalty Paid":
+      return list.filter((p) => p.amount_paid > 0 && p.penalty_paid === 0);
 
-      case "Total Unpaid":
-        return getUnpaidMonths(list);
+    case "Total Unpaid":
+      return getUnpaidMonths(list);
 
-      default:
-        return list;
-    }
-  };
+    default:
+      return list;
+  }
+};
 
   // ---------------------------------------------------
   // UNPAID MONTHS LOGIC
@@ -108,9 +125,10 @@ export default function Payments() {
     const year = new Date().getFullYear();
     const paidSet = new Set(paidList.map((p) => `${p.month}-${p.year}`));
 
-    const result: any[] = [];
-
     const currentMonthIndex = new Date().getMonth();
+
+    const result = [];
+
     for (let i = 0; i <= currentMonthIndex; i++) {
       const m = months[i];
       if (!paidSet.has(`${m}-${year}`)) {
@@ -137,7 +155,9 @@ export default function Payments() {
       p.payment_date || "-",
     ]);
 
-    const csvContent = [header, ...rows].map((r) => r.join(",")).join("\n");
+    const csvContent = [header, ...rows]
+      .map((r) => r.join(","))
+      .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -162,7 +182,10 @@ export default function Payments() {
         {tabs.map((tab) => (
           <div
             key={tab.name}
-            onClick={() => setActiveTab(tab.name)}
+            onClick={() => {
+              setActiveTab(tab.name);
+              loadPayments(); // reload with filters
+            }}
             className="cursor-pointer p-8 rounded-2xl bg-white shadow hover:scale-[1.02] transition flex flex-col items-center"
           >
             <div className="bg-[#28B8AE]/10 p-4 rounded-full mb-3">
@@ -217,11 +240,12 @@ export default function Payments() {
                 <Download size={18} /> Download CSV
               </button>
             </div>
-
+       
             {/* Record Count */}
             <p className="text-center mt-4 font-semibold text-gray-700">
               {getFilteredData().length} records found
             </p>
+            
           </div>
         </div>
       )}

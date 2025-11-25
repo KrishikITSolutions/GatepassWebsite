@@ -9,6 +9,7 @@ import Dashboard from "../dashboard/page";
 import PaymentsDetails from "../payments-details/page";
 
 import VisitorManagementSystem from "../v-m-s/page";
+import SendNotification from "../send-notifications/page";
 
 
 
@@ -25,7 +26,8 @@ export default function AdminDashboard() {
         return <VisitorManagementSystem />;
         case"Payments":
         return <PaymentsDetails/>
-
+        case"Notifications":
+        return <SendNotification/>;
     
       default:
         return <Dashboard />;

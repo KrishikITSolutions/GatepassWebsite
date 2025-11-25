@@ -103,7 +103,7 @@ export default function DashboardSection() {
         <h1 className="text-5xl font-bold tracking-tight text-gray-800">
           Society Dashboard
         </h1>
-      
+
       </motion.div>
 
       {/* ---- PIE CHARTS FIRST ---- */}

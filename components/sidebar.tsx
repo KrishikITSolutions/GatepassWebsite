@@ -9,16 +9,18 @@ import {
   Search,
   ChevronRight,
 } from "lucide-react";
-import { FaHome } from "react-icons/fa";
+import { FaCreditCard, FaHome, FaUser } from "react-icons/fa";
+import { FaLandmarkDome, FaLandMineOn } from "react-icons/fa6";
 
 export default function Sidebar({ activePage, setActivePage }: any) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const menuItems = [
-    { name: "Dashboard", icon: LayoutDashboard },
-    { name: "Residents", icon: Users2 },
-    { name: "Payments", icon: CreditCard },
-    { name: "V_M_S", icon: Home },
+    { name: "Dashboard", icon: FaLandmarkDome },
+    { name: "Residents", icon: FaUser},
+    { name: "Payments", icon: FaCreditCard },
+    { name: "V_M_S", icon:FaHome },
+    {name:"Notifications", icon: FaHome},
   ];
 
   const filtered = menuItems.filter((m) =>
