@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { Phone } from "lucide-react";
-import logo from "../public/logo2.png";
+import logo from "../assets/logo.png";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,21 +26,53 @@ export default function Header() {
               className="cursor-pointer"
               priority
             />
-            <span className="text-3xl font-semibold text-[#28B8AE] tracking-wide relative top-[4px] ml-2">
+            {/* <span className="text-3xl font-semibold text-[#28B8AE] tracking-wide relative top-[4px] ml-2">
               gatePass.Ai
-            </span>
+            </span> */}
           </Link>
         </div>
 
         {/* ========= Center Menu ========= */}
         <div className="flex-1 flex justify-center hidden md:flex">
-          <nav className="flex items-center space-x-10 font-semibold text-lg text-gray-700">
-            <Link href="/" className="hover:text-[#28B8AE] transition-colors">
-              Home
+          <nav className="ml-10 flex items-center space-x-10 font-semibold text-lg text-gray-700">
+
+            
+            <Link href="/about-us" className="hover:text-[#28B8AE] transition-colors">
+              About Us
+            </Link>
+
+            <Link
+                  href="/terms-of-service"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Terms and Conditions
+                </Link>
+
+             <Link
+                  href="/privacy-policy"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Privacy Policy
+                </Link>
+
+             <Link
+                  href="/refund-policy"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Refund Policy
+                </Link>
+                <Link
+                  href="/cancellation-policy"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Cancellation Policy
+                </Link>
+                <Link href="/contact-us" className="hover:text-[#28B8AE] transition-colors">
+              contact Us
             </Link>
 
             {/* Services Dropdown*/}
-            <div className="relative group flex items-center cursor-pointer">
+            {/* <div className="relative group flex items-center cursor-pointer">
               <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
                 Services <span className="ml-1 text-sm">&#9662;</span>
               </span>
@@ -76,13 +108,13 @@ export default function Header() {
                   Instant Security Support
                 </Link>
               </div>
-            </div>
+            </div> */}
 
             {/* About Us Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
-              <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
+              {/* <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
                 About Us <span className="ml-1 text-sm">&#9662;</span>
-              </span>
+              </span> */}
               <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
                 <Link
                   href="/privacy-policy"
@@ -113,27 +145,27 @@ export default function Header() {
               </div>
             </div>
 
-            <Link href="/" className="hover:text-[#28B8AE] transition-colors">
+            {/* <Link href="/" className="hover:text-[#28B8AE] transition-colors">
               Help
-            </Link>
+            </Link> */}
           </nav>
         </div>
 
         {/* ========= Right Actions  ========= */}
         <div className="hidden md:flex items-center space-x-5">
           {/* Phone */}
-          <Link
+          {/* <Link
             href="/contact-us"
             aria-label="Contact Us"
             className="flex items-center space-x-3"
-          >
-            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#28B8AE] hover:bg-[#239b96] transition cursor-pointer">
+          > */}
+            {/* <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#28B8AE] hover:bg-[#239b96] transition cursor-pointer">
               <Phone className="w-5 h-5 text-white" />
             </div>
             <span className="font-semibold text-gray-700 text-lg">
               +91 8050996382
             </span>
-          </Link>
+          </Link> */}
 
           {/* Login */}
           <Link
