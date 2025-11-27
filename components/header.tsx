@@ -34,8 +34,7 @@ export default function Header() {
 
         {/* ========= Center Menu ========= */}
         <div className="flex-1 flex justify-center hidden md:flex">
-          <nav className="ml-10 flex items-center space-x-10 font-semibold text-lg text-gray-700">
-
+          <nav className=" ml-10 flex items-center space-x-10 font-semibold text-lg text-gray-700">
             
             <Link href="/about-us" className="hover:text-[#28B8AE] transition-colors">
               About Us
@@ -70,6 +69,13 @@ export default function Header() {
                 <Link href="/contact-us" className="hover:text-[#28B8AE] transition-colors">
               contact Us
             </Link>
+
+            <Link
+                  href="/product-checkout"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Product Checkout
+                </Link>
 
             {/* Services Dropdown*/}
             {/* <div className="relative group flex items-center cursor-pointer">
@@ -142,6 +148,8 @@ export default function Header() {
                 >
                   Cancellation Policy
                 </Link>
+
+                
               </div>
             </div>
 
@@ -176,11 +184,11 @@ export default function Header() {
           </Link>
 
           {/* Book a Demo */}
-          <Link href="/">
+          {/* <Link href="/">
             <button className="px-5 py-2 bg-[#28B8AE] text-white font-semibold rounded-full shadow hover:bg-[#239b96] transition">
               Book a Demo
             </button>
-          </Link>
+          </Link> */}
         </div>
 
         {/* ========= Mobile Menu Button ========= */}
