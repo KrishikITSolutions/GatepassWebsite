@@ -40,6 +40,44 @@ export default function Header() {
               About Us
             </Link>
 
+            <div className="relative group flex items-center cursor-pointer">
+              <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
+                Services <span className="ml-1 text-sm">&#9662;</span>
+              </span>
+              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
+                <Link
+                  href="/visitor-managment-system"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Visitor Management System
+                </Link>
+                <Link
+                  href="/payments"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Payments
+                </Link>
+                <Link
+                  href="/resident-welfare-association"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Resident Welfare Association
+                </Link>
+                <Link
+                  href="/smart-daily-help"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Smart Daily Help & Visitor Alerts
+                </Link>
+                <Link
+                  href="/instant-security-support"
+                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
+                >
+                  Instant Security Support
+                </Link>
+              </div>
+            </div>
+
             <Link
                   href="/terms-of-service"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
@@ -78,43 +116,7 @@ export default function Header() {
                 </Link>
 
             {/* Services Dropdown*/}
-            {/* <div className="relative group flex items-center cursor-pointer">
-              <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
-                Services <span className="ml-1 text-sm">&#9662;</span>
-              </span>
-              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
-                <Link
-                  href="/visitor-managment-system"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Visitor Management System
-                </Link>
-                <Link
-                  href="/payments"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Payments
-                </Link>
-                <Link
-                  href="/resident-welfare-association"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Resident Welfare Association
-                </Link>
-                <Link
-                  href="/smart-daily-help"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Smart Daily Help & Visitor Alerts
-                </Link>
-                <Link
-                  href="/instant-security-support"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Instant Security Support
-                </Link>
-              </div>
-            </div> */}
+            
 
             {/* About Us Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
