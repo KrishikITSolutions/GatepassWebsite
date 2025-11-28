@@ -40,6 +40,10 @@ export default function Header() {
               About Us
             </Link>
 
+            <Link href="/payment" className="hover:text-[#28B8AE] transition-colors">
+               Payments
+            </Link>
+
             <div className="relative group flex items-center cursor-pointer">
               <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
                 Services <span className="ml-1 text-sm">&#9662;</span>
@@ -178,12 +182,12 @@ export default function Header() {
           </Link> */}
 
           {/* Login */}
-          <Link
+          {/* <Link
             href="/"
             className="border border-[#28B8AE] text-[#28B8AE] hover:bg-[#28B8AE] hover:text-white px-5 py-2 rounded-full font-semibold transition"
           >
             Login
-          </Link>
+          </Link> */}
 
           {/* Book a Demo */}
           {/* <Link href="/">
