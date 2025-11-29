@@ -8,81 +8,138 @@ export default function AboutUs() {
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 md:px-0 py-10 text-gray-800 flex-grow">
+
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-left">
           About Us
         </h1>
 
-        {/* Overview Section */}
+        {/* About Section */}
         <section className="mb-8">
           <p>
-            <strong>GatePass.AI</strong> is a next-generation community security and visitor 
-            management app designed for modern apartments and gated communities. Our platform 
-            uses AI-driven technology to make residential living safer, simpler, and more efficient. 
-            From secure visitor approvals to multilingual support for residents, GatePass.AI delivers 
-            a seamless experience for societies, residents, security staff, and property managers.
+            GatePass.AI is a next-generation community security and visitor
+            management app designed for modern apartments and gated communities.
+            Our platform uses AI-driven technology to make residential living
+            safer, simpler, and more efficient. From secure visitor approvals to
+            multilingual support for residents, GatePass.AI delivers a seamless
+            experience for societies, residents, security staff, and property
+            managers.
+          </p>
+        </section>
+
+        {/* What We Do */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-semibold mb-3">What We Do</h2>
+
+          <p className="mb-4">
+            GatePass.AI is an AI-powered community and apartment management
+            platform built for residential societies, gated communities, and RWAs.
+            We simplify daily operations through features like visitor management,
+            security monitoring, facility bookings, resident communication, and
+            community coordination.
+          </p>
+
+          <p className="mb-3">
+            We also provide a secure digital payment system that lets residents
+            pay society-related charges such as:
+          </p>
+
+          <ul className="list-disc list-inside space-y-1 mb-4">
+            <li>Maintenance fees</li>
+            <li>Amenity bookings</li>
+            <li>Parking fees</li>
+            <li>RFID/access card charges</li>
+            <li>Event fees</li>
+          </ul>
+
+          <p className="mb-4">
+            All payments are strictly for housing-society services and are
+            processed through verified payment gateways.
+          </p>
+
+          <p>
+            GatePass.AI acts only as a technology platform and payment
+            facilitator. We do not sell products or offer personal services. All
+            transactions made through GatePass.AI are collected on behalf of the
+            respective residential association, ensuring transparency, compliance,
+            and smooth financial management.
           </p>
         </section>
 
         {/* Vision */}
-        <section className="mb-8">
+        <section className="mb-10">
           <h2 className="text-2xl font-semibold mb-3">Our Vision</h2>
           <p>
-            To become India’s most trusted AI-powered community security solution, connecting 
-            residents and management through a secure, smart, and accessible digital ecosystem.
+            To become India’s most trusted AI-powered community security solution,
+            connecting residents and management through a secure, smart, and
+            accessible digital ecosystem.
           </p>
         </section>
 
         {/* Mission */}
-        <section className="mb-8">
+        <section className="mb-10">
           <h2 className="text-2xl font-semibold mb-3">Our Mission</h2>
-          <ul className="list-disc list-inside space-y-2">
+
+          <ul className="list-disc list-inside space-y-1">
             <li>Advanced visitor management and gate security</li>
             <li>Smooth resident–management communication</li>
             <li>Automated community workflows</li>
-            <li>Mother-tongue and multilingual support for better accessibility</li>
-            <li>A user-friendly interface that works for all age groups</li>
+            <li>Mother-tongue and multilingual support</li>
+            <li>A user-friendly interface suitable for all age groups</li>
           </ul>
         </section>
 
-        {/* Why GatePass.AI is Different */}
-        <section className="mb-8">
+        {/* Why Different */}
+        <section className="mb-10">
           <h2 className="text-2xl font-semibold mb-3">Why GatePass.AI is Different</h2>
+
           <p className="mb-4">
-            Unlike regular apartment security apps, GatePass.AI uses artificial intelligence 
-            to understand user behaviour, speed up verifications, and reduce manual errors. 
-            Our platform also focuses heavily on language accessibility, ensuring that even 
-            non-tech users—including residents aged 35+ and above—can navigate the app comfortably.
+            Unlike regular apartment security apps, GatePass.AI uses artificial
+            intelligence to understand user behaviour, speed up verifications,
+            and reduce manual errors. Our platform places a strong emphasis on
+            language accessibility, ensuring that even non-tech users—including
+            residents aged 35+ and above—can navigate the app comfortably.
           </p>
-          <ul className="list-disc list-inside space-y-2">
+
+          <p className="mb-3">GatePass.AI helps communities by providing:</p>
+
+          <ul className="list-disc list-inside space-y-1">
             <li>Smart, AI-assisted visitor authentication</li>
             <li>Real-time notifications and community updates</li>
             <li>Easy complaint management and service request tracking</li>
             <li>Parcel and delivery management</li>
-            <li>Tools for property managers to monitor, organize, and automate tasks</li>
+            <li>
+              Tools for property managers to monitor, organize, and automate tasks
+            </li>
           </ul>
         </section>
 
         {/* What We Stand For */}
-        <section className="mb-8">
+        <section className="mb-10">
           <h2 className="text-2xl font-semibold mb-3">What We Stand For</h2>
+
+          <p className="font-semibold mb-2">
+            Security. Convenience. Transparency.
+          </p>
+
           <p>
-            <strong>Security. Convenience. Transparency.</strong><br />
-            We believe that every community deserves a secure and well-connected environment. 
-            Our goal is to simplify daily interactions within residential societies and ensure 
-            that every resident—from children to senior citizens—feels confident using our app.
+            We believe every community deserves a secure and well-connected
+            environment. Our goal is to simplify daily interactions within
+            residential societies and ensure that every resident—from children to
+            senior citizens—feels confident using our app.
           </p>
         </section>
 
         {/* Commitment */}
-        <section>
+        <section className="mb-10">
           <h2 className="text-2xl font-semibold mb-3">Our Commitment</h2>
           <p>
-            At GatePass.AI, we continuously innovate to bring the best AI-powered security 
-            features to your community. Our team is dedicated to building a safe, inclusive, 
-            and tech-friendly platform that improves the quality of life in every apartment 
-            complex and gated community we serve.
+            At GatePass.AI, we continuously innovate to bring the best AI-powered
+            security features to your community. Our team is dedicated to building
+            a safe, inclusive, and tech-friendly platform that improves the quality
+            of life in every apartment complex and gated community we serve.
           </p>
         </section>
+
       </main>
 
       <Footer />
