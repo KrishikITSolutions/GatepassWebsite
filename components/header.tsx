@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
+      <header className="flex items-center justify-between px-4 md:px-13 py-4 shadow-sm bg-white sticky top-0 z-60">
         {/* ========= Logo + Brand Name ========= */}
         <div className="flex items-center space-x-3 flex-shrink-0">
           <Link href="/" aria-label="Go to home" className="flex items-center">
@@ -34,10 +34,11 @@ export default function Header() {
 
         {/* ========= Center Menu ========= */}
         <div className="flex-1 flex justify-center hidden md:flex">
-          <nav className="flex items-center space-x-10 font-semibold text-lg text-gray-700">
+          <nav className="flex items-center space-x-4 font-semibold text-lg text-gray-700">
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
               Home
             </Link>
+            <span className="ml-1 text-sm">|</span>
 
             {/* Services Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
@@ -77,6 +78,7 @@ export default function Header() {
                 </Link>
               </div>
             </div>
+            <span className="ml-1 text-sm">|</span>
 
             {/* About Us Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
@@ -112,6 +114,7 @@ export default function Header() {
                 </Link>
               </div>
             </div>
+            <span className="ml-1 text-sm">|</span>
 
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
               Help
