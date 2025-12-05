@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 md:px-13 py-4 shadow-sm bg-white sticky top-0 z-60">
+      <header className="flex items-center justify-between px-4 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
         {/* ========= Logo + Brand Name ========= */}
         <div className="flex items-center space-x-3 flex-shrink-0">
           <Link href="/" aria-label="Go to home" className="flex items-center">
