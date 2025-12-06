@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
+      <header className="flex items-center justify-between  px-4 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
         {/* ========= Logo + Brand Name ========= */}
         <div className="flex items-center space-x-3 flex-shrink-0">
           <Link href="/" aria-label="Go to home" className="flex items-center">
@@ -34,15 +34,16 @@ export default function Header() {
 
         {/* ========= Center Menu ========= */}
         <div className="flex-1 flex justify-center hidden md:flex">
-          <nav className="flex items-center space-x-10 font-semibold text-lg text-gray-700">
+          <nav className="flex items-center space-x-5 font-semibold text-lg text-gray-700">
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
-              Home
+              Home  
             </Link>
+             <span className="ml-1 text-sm">|</span>
 
             {/* Services Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
               <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
-                Services <span className="ml-1 text-sm">&#9662;</span>
+                Services <span className="ml-1 text-sm">&#9662;</span> 
               </span>
               <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
                 <Link
@@ -77,7 +78,7 @@ export default function Header() {
                 </Link>
               </div>
             </div>
-
+            <span className="ml-1 text-sm">|</span>
             {/* About Us Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
               <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
@@ -112,6 +113,7 @@ export default function Header() {
                 </Link>
               </div>
             </div>
+            <span className="ml-1 text-sm">|</span>
 
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
               Help

@@ -2,104 +2,172 @@
 
 import { useState } from "react";
 import { supabase } from "../utils/supabase";
+import { CheckCircle, XCircle, Bell } from "lucide-react";
 
 export default function SendNotificationPage() {
   const [societyId, setSocietyId] = useState("");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState("");
+  const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+
+  const showToast = (type: string, text: string) => {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleSend = async () => {
+    if (!societyId || !title || !message) {
+      return showToast("error", "All fields are required.");
+    }
+
     setLoading(true);
-    setResponse("");
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/sendNotification`,
+      let mediaUrl = null;
+
+      // Upload image/video if selected
+      if (file) {
+        const ext = file.name.split(".").pop();
+        const fileName = `${Date.now()}.${ext}`;
+
+        const { data, error } = await supabase.storage
+          .from("admin_notifications")
+          .upload(`files/${fileName}`, file);
+
+        if (error) {
+          showToast("error", "Failed to upload file");
+          setLoading(false);
+          return;
+        }
+
+        mediaUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/admin_notifications/files/${fileName}`;
+      }
+
+      // Send to Edge Function
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/Website-Notifications`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${
-              (await supabase.auth.getSession())?.data.session?.access_token
-            }`,
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
           },
           body: JSON.stringify({
             society_id: societyId,
-            title,
+            title,  
             body: message,
+            media: mediaUrl, // <--- send file url
           }),
         }
       );
 
-      const result = await res.json();
-      setResponse(JSON.stringify(result, null, 2));
+      const result = await response.json();
+
+      if (!response.ok) {
+        showToast("error", result.error || "Something went wrong.");
+      } else {
+        showToast("success", "Notification sent successfully!");
+        setSocietyId("");
+        setTitle("");
+        setMessage("");
+        setFile(null);
+      }
     } catch (err: any) {
-      setResponse("Error: " + err.message);
+      showToast("error", err.message || "Unexpected error");
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
+      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 relative">
 
-        <h2 className="text-2xl font-bold mb-6 text-center">
+        {/* Header */}
+        <div className="flex items-center justify-center mb-6">
+          <Bell size={40} className="text-[#28B8AE]" />
+        </div>
+
+        <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 tracking-tight">
           Send Notification
         </h2>
 
         {/* Society ID */}
-        <div className="mb-4">
-          <label className="block mb-1 font-semibold">Select Society</label>
+        <div className="mb-6">
+          <label className="font-semibold text-gray-800">Select Society</label>
           <input
             type="text"
-            placeholder="Enter society_id (Ex: A_MC0_BLR_04)"
+            placeholder="Ex: A_MC0_BLR_04"
             value={societyId}
             onChange={(e) => setSocietyId(e.target.value)}
-            className="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300 outline-none"
+            className="w-full p-3 mt-1 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#28B8AE] outline-none transition-all"
           />
         </div>
 
         {/* Title */}
-        <div className="mb-4">
-          <label className="block mb-1 font-semibold">Notification Title</label>
+        <div className="mb-6">
+          <label className="font-semibold text-gray-800">Title</label>
           <input
             type="text"
-            placeholder="Enter title"
+            placeholder="Notification title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300 outline-none"
+            className="w-full p-3 mt-1 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#28B8AE] outline-none transition-all"
           />
         </div>
 
         {/* Message */}
-        <div className="mb-4">
-          <label className="block mb-1 font-semibold">Message</label>
+        <div className="mb-6">
+          <label className="font-semibold text-gray-800">Message</label>
           <textarea
-            placeholder="Enter message"
+            placeholder="Enter your message..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="w-full p-3 h-28 border rounded-lg focus:ring focus:ring-blue-300 outline-none"
+            className="w-full p-3 mt-1 h-32 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#28B8AE] outline-none transition-all resize-none"
           />
         </div>
 
+        {/* File Upload */}
+        {/* Upload File */}
+        <div className="mb-6">
+          <label className="font-semibold text-gray-800">Upload Image / Video</label>
+          <input
+            type="file"
+            accept="image/*,video/*"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="w-full p-3 mt-1 border border-gray-300 rounded-xl"
+          />
+        </div>
+
+
+        {/* Button */}
         <button
           onClick={handleSend}
           disabled={loading}
-          className={`w-full bg-[#28B8AE] hover:bg-[#239b96] text-white py-3 rounded-lg font-semibold ${
-            loading ? "opacity-60 cursor-not-allowed" : ""
-          }`}
+          className={`w-full py-3 rounded-xl text-white font-semibold text-lg shadow-lg transition-all active:scale-[0.97]
+            ${loading
+              ? "bg-[#28B8AE]/60 cursor-not-allowed"
+              : "bg-[#28B8AE] hover:bg-[#239b96]"
+            }`}
         >
           {loading ? "Sending..." : "Send Notification"}
         </button>
 
-        {/* Result Box */}
-        {response && (
-          <pre className="mt-6 bg-gray-900 text-gray-100 p-4 rounded-lg text-sm overflow-auto">
-            {response}
-          </pre>
+        {/* Toast Notification */}
+        {toast && (
+          <div
+            className={`fixed top-25 right-6 px-5 py-3 rounded-full shadow-xl text-white flex items-center gap-3 animate-slide-in 
+              ${toast.type === "success" ? "bg-green-600" : "bg-red-600"}`}
+          >
+            {toast.type === "success" ? (
+              <CheckCircle size={22} />
+            ) : (
+              <XCircle size={22} />
+            )}
+            <span className="font-medium">{toast.text}</span>
+          </div>
         )}
       </div>
     </div>
