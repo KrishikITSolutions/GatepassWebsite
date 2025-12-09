@@ -37,9 +37,8 @@ export default function SendNotificationPage() {
 
         const { data, error } = await supabase.storage
           .from("admin_notifications")
-          .upload(`files/${fileName}`, file, {
-            cacheControl: "3600",
-            upsert: true,
+          .upload(`${fileName}`, file, {
+           contentType: file.type,
           });
 
         if (error) {
