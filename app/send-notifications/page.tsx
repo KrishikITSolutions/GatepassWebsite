@@ -12,6 +12,9 @@ export default function SendNotificationPage() {
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
+  console.log("line 15 image is:", file);
+
+
   const showToast = (type: string, text: string) => {
     setToast({ type, text });
     setTimeout(() => setToast(null), 3000);
@@ -21,31 +24,50 @@ export default function SendNotificationPage() {
     if (!societyId || !title || !message) {
       return showToast("error", "All fields are required.");
     }
-
+    console.log("Sending notification...");
     setLoading(true);
 
     try {
-      let mediaUrl = null;
+      let mediaUrl: string | null = null;
+      let mediaType: "image" | "video" | null = null;
+      // console.log("File to upload:", file);
 
-      // Upload image/video if selected
+      // Upload file if selected
       if (file) {
         const ext = file.name.split(".").pop();
         const fileName = `${Date.now()}.${ext}`;
 
-        const { data, error } = await supabase.storage
-          .from("admin_notifications")
-          .upload(`files/${fileName}`, file);
+        // console.log("Uploading file:", fileName);
+
+        const { data } = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/admin_notifications/files/${fileName}`, {
+  method: "POST",
+  headers: {
+    "Content-Type": file.type,
+    Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+  },
+  body: file,
+});
+
+
+        console.log("Upload data:", data);
 
         if (error) {
           showToast("error", "Failed to upload file");
+          console.log("Upload error:", error.message);
           setLoading(false);
           return;
         }
 
-        mediaUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/admin_notifications/files/${fileName}`;
+        // Get public URL
+        mediaUrl = supabase.storage
+          .from("admin_notifications")
+          .getPublicUrl(`files/${fileName}`).data.publicUrl;
+
+        mediaType = file.type.startsWith("image") ? "image" : "video";
+        console.log("File uploaded. URL:", mediaUrl);
       }
 
-      // Send to Edge Function
+      //  Send notification via Edge Function
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/Website-Notifications`,
         {
@@ -56,9 +78,10 @@ export default function SendNotificationPage() {
           },
           body: JSON.stringify({
             society_id: societyId,
-            title,  
+            title,
             body: message,
-            media: mediaUrl, // <--- send file url
+            media_url: mediaUrl,
+            media_type: mediaType,
           }),
         }
       );
@@ -130,7 +153,6 @@ export default function SendNotificationPage() {
         </div>
 
         {/* File Upload */}
-        {/* Upload File */}
         <div className="mb-6">
           <label className="font-semibold text-gray-800">Upload Image / Video</label>
           <input
@@ -141,8 +163,7 @@ export default function SendNotificationPage() {
           />
         </div>
 
-
-        {/* Button */}
+        {/* Send Button */}
         <button
           onClick={handleSend}
           disabled={loading}
@@ -155,20 +176,17 @@ export default function SendNotificationPage() {
           {loading ? "Sending..." : "Send Notification"}
         </button>
 
-        {/* Toast Notification */}
+        {/* Toast */}
         {toast && (
           <div
             className={`fixed top-25 right-6 px-5 py-3 rounded-full shadow-xl text-white flex items-center gap-3 animate-slide-in 
               ${toast.type === "success" ? "bg-green-600" : "bg-red-600"}`}
           >
-            {toast.type === "success" ? (
-              <CheckCircle size={22} />
-            ) : (
-              <XCircle size={22} />
-            )}
+            {toast.type === "success" ? <CheckCircle size={22} /> : <XCircle size={22} />}
             <span className="font-medium">{toast.text}</span>
           </div>
         )}
+
       </div>
     </div>
   );
