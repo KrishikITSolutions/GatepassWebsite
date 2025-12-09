@@ -9,42 +9,35 @@ export default function MediaUploader({ onUploaded }: {
 
   const uploadFile = async (file: File) => {
     setLoading(true);
-    try {
-      const ext = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${ext}`;
 
+    try {
+      const filePath = `files/${Date.now()}_${file.name}`;
+
+      // Upload to bucket
       const { data, error } = await supabase.storage
         .from("admin_notifications")
-        .upload(`files/${fileName}`, file, { upsert: false });
+        .upload(filePath, file);
 
       if (error) throw error;
 
-      // fix: data.fullPath is the correct field
-      const filePath = data.fullPath || data.path;
-
-      const { data: publicUrl } = supabase.storage
+      // Get public URL
+      const { data: urlData } = supabase.storage
         .from("admin_notifications")
         .getPublicUrl(filePath);
 
-      const publicUrlStr = publicUrl.publicUrl;
+      const publicUrl = urlData.publicUrl;
 
-      const mime = file.type;
-      const mediaType = mime.startsWith("image")
-        ? "image"
-        : mime.startsWith("video")
-          ? "video"
-          : null;
-
-      onUploaded(publicUrlStr, mediaType);
-
+      //  Pass URL & type back to parent component
+      onUploaded(publicUrl, file.type);
 
     } catch (err) {
-      console.log(err);
-      onUploaded(null, null);
+      console.error(err);
+      alert("Failed to upload file");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex flex-col gap-2">

@@ -12,7 +12,7 @@ export default function SendNotificationPage() {
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
-  console.log("Upload image:",file);
+  console.log("Upload image:", file);
 
   const showToast = (type: string, text: string) => {
     setToast({ type, text });
@@ -38,7 +38,7 @@ export default function SendNotificationPage() {
         const { data, error } = await supabase.storage
           .from("admin_notifications")
           .upload(`${fileName}`, file, {
-           contentType: file.type,
+            contentType: file.type,
           });
 
         if (error) {
@@ -51,10 +51,23 @@ export default function SendNotificationPage() {
         // Get public URL
         mediaUrl = supabase.storage
           .from("admin_notifications")
-          .getPublicUrl(`files/${fileName}`).data.publicUrl;
+          .getPublicUrl(`${fileName}`).data.publicUrl;
 
         mediaType = file.type.startsWith("image") ? "image" : "video";
+ 
+        console.log("Uploaded media URL:", mediaUrl);
+
+        // Save media info in admin_notifications table
+        await supabase.from("admin_notifications").insert({
+          society_id: societyId,
+          title,
+          body: message,
+          media_url: mediaUrl, 
+          media_type: mediaType,
+        });
       }
+
+      console.log("Sending notification to society:", mediaUrl);
 
       //  Send notification via Edge Function
       const response = await fetch(
