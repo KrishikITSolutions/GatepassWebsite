@@ -12,8 +12,7 @@ export default function SendNotificationPage() {
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
-  console.log("line 15 image is:", file);
-
+  console.log("Upload image:",file);
 
   const showToast = (type: string, text: string) => {
     setToast({ type, text });
@@ -24,32 +23,24 @@ export default function SendNotificationPage() {
     if (!societyId || !title || !message) {
       return showToast("error", "All fields are required.");
     }
-    console.log("Sending notification...");
+
     setLoading(true);
 
     try {
       let mediaUrl: string | null = null;
       let mediaType: "image" | "video" | null = null;
-      // console.log("File to upload:", file);
 
       // Upload file if selected
       if (file) {
         const ext = file.name.split(".").pop();
         const fileName = `${Date.now()}.${ext}`;
 
-        // console.log("Uploading file:", fileName);
-
-        const { data } = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/admin_notifications/files/${fileName}`, {
-  method: "POST",
-  headers: {
-    "Content-Type": file.type,
-    Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-  },
-  body: file,
-});
-
-
-        console.log("Upload data:", data);
+        const { data, error } = await supabase.storage
+          .from("admin_notifications")
+          .upload(`files/${fileName}`, file, {
+            cacheControl: "3600",
+            upsert: true,
+          });
 
         if (error) {
           showToast("error", "Failed to upload file");
@@ -64,7 +55,6 @@ export default function SendNotificationPage() {
           .getPublicUrl(`files/${fileName}`).data.publicUrl;
 
         mediaType = file.type.startsWith("image") ? "image" : "video";
-        console.log("File uploaded. URL:", mediaUrl);
       }
 
       //  Send notification via Edge Function
