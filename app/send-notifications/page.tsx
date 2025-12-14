@@ -11,9 +11,10 @@ export default function SendNotificationPage() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [category, setCategory] = useState("");
+
 
   console.log("Upload image:", file);
-
   const showToast = (type: string, text: string) => {
     setToast({ type, text });
     setTimeout(() => setToast(null), 3000);
@@ -37,7 +38,7 @@ export default function SendNotificationPage() {
 
         const { data, error } = await supabase.storage
           .from("admin_notifications")
-          .upload(`${fileName}`, file, {
+          .upload(fileName, file, {
             contentType: file.type,
           });
 
@@ -51,25 +52,14 @@ export default function SendNotificationPage() {
         // Get public URL
         mediaUrl = supabase.storage
           .from("admin_notifications")
-          .getPublicUrl(`${fileName}`).data.publicUrl;
+          .getPublicUrl(fileName).data.publicUrl;
 
         mediaType = file.type.startsWith("image") ? "image" : "video";
- 
-        console.log("Uploaded media URL:", mediaUrl);
 
-        // Save media info in admin_notifications table
-        await supabase.from("admin_notifications").insert({
-          society_id: societyId,
-          title,
-          body: message,
-          media_url: mediaUrl, 
-          media_type: mediaType,
-        });
+        console.log("Uploaded media URL:", mediaUrl);
       }
 
-      console.log("Sending notification to society:", mediaUrl);
-
-      //  Send notification via Edge Function
+      // ⭐ CALL ONLY EDGE FUNCTION — NO INSERT from client
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/Website-Notifications`,
         {
@@ -84,6 +74,7 @@ export default function SendNotificationPage() {
             body: message,
             media_url: mediaUrl,
             media_type: mediaType,
+            category ,
           }),
         }
       );
@@ -105,6 +96,7 @@ export default function SendNotificationPage() {
 
     setLoading(false);
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
@@ -130,6 +122,19 @@ export default function SendNotificationPage() {
             className="w-full p-3 mt-1 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#28B8AE] outline-none transition-all"
           />
         </div>
+        {/* Category */}
+        <label className="font-semibold text-gray-800">Category</label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="border p-2 rounded w-full"
+        >
+          <option value="">Select Category</option>
+          <option value="emergency">🚨 Emergency</option>
+          <option value="warning">⚠️ Warning</option>
+          <option value="general">ℹ️ General Info</option>
+        </select>
+        <div className="h-4" />
 
         {/* Title */}
         <div className="mb-6">
