@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -40,15 +38,12 @@ export default function LoginPage() {
         body: JSON.stringify({ phone }),
       });
       const data = await res.json();
-      console.log("Send OTP response:", data);
 
       if (data.success) {
         setStep("otp");
         setTimer(60);
         setMessage("OTP sent! Valid for 60 seconds.");
-      } else {
-        setMessage(data.message);
-      }
+      } else setMessage(data.message);
     } catch (err) {
       console.error(err);
       setMessage("Server error");
@@ -58,7 +53,7 @@ export default function LoginPage() {
   const verifyOtp = async () => {
     setMessage("");
     if (otp.length !== 6) {
-      setMessage("Enter 6-digit OTP");
+      setMessage("Enter the 6-digit OTP");
       return;
     }
 
@@ -66,21 +61,25 @@ export default function LoginPage() {
       const res = await fetch("/api/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code: otp, device_token: "demo-device-token-123" }),
+        body: JSON.stringify({ phone, code: otp, device_token: "demo-device-token" }),
       });
       const data = await res.json();
-      console.log("Verify OTP response:", data);
 
       if (data.success) {
-        setMessage("Login successful. Redirecting to dashboard…");
+        // Store role + society_id in localStorage
+        localStorage.setItem(
+          "auth_user",
+          JSON.stringify({
+            role: data.role,
+            society_id: data.society_id || null
+          })
+        );
 
+        setMessage("Login successful! Redirecting…");
         setTimeout(() => {
-          if (data.role === "admin") router.push("/admin");
-          else router.push("/society");
-        }, 1200);
-      } else {
-        setMessage(data.message);
-      }
+          router.push("/dashboard");
+        }, 1000);
+      } else setMessage(data.message);
     } catch (err) {
       console.error(err);
       setMessage("Server error");
@@ -90,42 +89,24 @@ export default function LoginPage() {
   const resendOtp = () => sendOtp();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center relative" style={{ backgroundImage: "url('/assets/gpbg.png')" }}>
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('/assets/gpbg.png')" }}>
       <div className="bg-white bg-opacity-80 p-8 rounded-md shadow-md w-80">
         {step === "phone" && (
           <>
             <h2 className="text-2xl mb-4 text-center">Login</h2>
-            <input
-              type="tel"
-              placeholder="Enter phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/, ""))}
-              className="w-full mb-4 p-2 border rounded"
-            />
-            <button onClick={sendOtp} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
-              Send OTP
-            </button>
+            <input type="tel" placeholder="Enter phone" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/, ""))} className="w-full mb-4 p-2 border rounded" />
+            <button onClick={sendOtp} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Send OTP</button>
           </>
         )}
 
         {step === "otp" && (
           <>
             <h2 className="text-2xl mb-4 text-center">Enter OTP</h2>
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/, ""))}
-              className="w-full mb-2 p-2 border rounded"
-            />
-            <button onClick={verifyOtp} className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 mb-2">
-              Verify OTP
-            </button>
+            <input type="text" placeholder="Enter OTP" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/, ""))} className="w-full mb-2 p-2 border rounded" />
+            <button onClick={verifyOtp} className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 mb-2">Verify OTP</button>
             <div className="flex justify-between items-center">
               <span>Valid for: {timer}s</span>
-              <button onClick={resendOtp} disabled={resendDisabled} className={`text-blue-600 underline ${resendDisabled ? "opacity-50 cursor-not-allowed" : ""}`}>
-                Resend
-              </button>
+              <button onClick={resendOtp} disabled={resendDisabled} className={`text-blue-600 underline ${resendDisabled ? "opacity-50 cursor-not-allowed" : ""}`}>Resend</button>
             </div>
           </>
         )}
