@@ -59,7 +59,7 @@ export default function SendNotificationPage() {
         console.log("Uploaded media URL:", mediaUrl);
       }
 
-      // ⭐ CALL ONLY EDGE FUNCTION — NO INSERT from client
+      //  CALL ONLY EDGE FUNCTION — NO INSERT from client
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/Website-Notifications`,
         {
