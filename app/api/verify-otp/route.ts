@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const formattedPhone = `91${phone.trim()}`;
     console.log("Verify OTP request:", { phone: formattedPhone, code });
 
-    // 1️⃣ Check resident
+    // 1️. Check resident
     const { data: resident } = await supabase
       .from("resident_profiles")
       .select("id, first_name, website_access, gatepass_id")
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "You do not have permission to access this panel", status: 403 });
     }
 
-    // 2️⃣ OTP verification
+    // 2️. OTP verification
     // Here, just simulate verification (in real app, compare with Twilio OTP)
     if (code.length !== 6) {
       return NextResponse.json({ success: false, message: "Invalid OTP", status: 400 });
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
     console.log("✅ OTP verified for", formattedPhone);
 
-    // 3️⃣ Insert login record
+    // 3️.Insert login record
     const insertResult = await supabase.from("website_login").insert({
       resident_id: resident.id,
       first_name: resident.first_name,
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Server error. Try again", status: 500 });
     }
 
-    // 4️⃣ Return success
+    // 4. Return success
     return NextResponse.json({
       success: true,
       message: "Login successful. Redirecting to dashboard…",
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     });
 
   } catch (err) {
-    console.error("❌ Verify OTP error:", err);
+    console.error(" Verify OTP error:", err);
     return NextResponse.json({ success: false, message: "Server error. Try again", status: 500 });
   }
 }

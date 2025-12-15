@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const formattedPhone = `91${phone.trim()}`;
 
-    // 1️⃣ DB check
+    // 1️. DB check
     const { data: user } = await supabase
       .from("resident_profiles")
       .select("id, role, website_access")
@@ -37,11 +37,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "You do not have permission to access this panel" }, { status: 403 });
     }
 
-    // 2️⃣ Generate 4-digit OTP
+    // 2️. Generate 4-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     console.log("Generated OTP:", otp);
 
-    // 3️⃣ Send via Twilio
+    // 3️. Send via Twilio
     const message = await client.messages.create({
       body: `Your OTP is ${otp}`,
       from: fromNumber,
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Twilio message SID:", message.sid);
 
-    // ✅ Success response
+    //  Success response
     return NextResponse.json({ success: true, message: "OTP sent successfully", otp }); // optional otp log
   } catch (err) {
     console.error("Send OTP error:", err);
