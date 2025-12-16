@@ -1,8 +1,3 @@
-
-// import { supabase } from "@/app/utils/supabase";
-// //import { sendOTP } from "@../../twilio";
-// import { sendOtpSMS as sendOTP } from "@/app/utils/twilio";
-
 import { NextRequest, NextResponse } from "next/server";
 import twilio from "twilio";
 import { supabase } from "@/app/utils/supabase";
@@ -10,7 +5,7 @@ import { supabase } from "@/app/utils/supabase";
 const accountSid = process.env.TWILIO_ACCOUNT_SID!;
 const authToken = process.env.TWILIO_AUTH_TOKEN!;
 const client = twilio(accountSid, authToken);
-const fromNumber = process.env.TWILIO_PHONE_NUMBER!; // e.g., +12722334437
+const fromNumber = process.env.TWILIO_PHONE_NUMBER!;
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,35 +17,33 @@ export async function POST(req: NextRequest) {
 
     const formattedPhone = `91${phone.trim()}`;
 
-    // 1️. DB check
+    // ✅ Check user + website_access
     const { data: user } = await supabase
       .from("resident_profiles")
-      .select("id, role, website_access")
+      .select("id, first_name, website_access, society_id")
       .eq("phone_number", formattedPhone)
       .maybeSingle();
 
     if (!user) {
-      return NextResponse.json({ success: false, message: "User not registered. Please contact admin" }, { status: 404 });
+      return NextResponse.json({ success: false, message: "User not registered. Please contact admin", status: 404 });
     }
 
     if (!["admin", "rwa"].includes(user.website_access)) {
-      return NextResponse.json({ success: false, message: "You do not have permission to access this panel" }, { status: 403 });
+      return NextResponse.json({ success: false, message: "You are not authorized to access this portal. Please contact the community administrator.", status: 403 });
     }
 
-    // 2️. Generate 4-digit OTP
+    // ✅ Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     console.log("Generated OTP:", otp);
 
-    // 3️. Send via Twilio
+    // ✅ Send OTP via Twilio
     const message = await client.messages.create({
       body: `Your OTP is ${otp}`,
       from: fromNumber,
       to: `+${formattedPhone}`,
     });
-
     console.log("Twilio message SID:", message.sid);
 
-    //  Success response
     return NextResponse.json({ success: true, message: "OTP sent successfully", otp }); // optional otp log
   } catch (err) {
     console.error("Send OTP error:", err);
