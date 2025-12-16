@@ -98,8 +98,10 @@ export default function LoginPage() {
       localStorage.setItem(
         "auth_user",
         JSON.stringify({
+          
           role: data.role,
           society_id: data.society_id,
+          
           device_token: data.device_token,
         })
       );

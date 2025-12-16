@@ -1,28 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { LogOut, ChevronDown } from "lucide-react";
 import Image from "next/image";
-import logo from "@/assets/logo.png";
 import { useRouter } from "next/navigation";
+import logo from "@/assets/logo.png";
 
-export default function Navbar() {
+export default function Navbar({ role, societyName }: any) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [title, setTitle] = useState("");
 
   useEffect(() => {
-    const user = localStorage.getItem("auth_user");
-    if (!user) return;
-
-    const parsed = JSON.parse(user);
-
-    if (parsed.role === "admin") {
-      setTitle("Welcome to GatePass Admin Portal");
-    } else {
-      setTitle(`Welcome to ${parsed.society_name}`);
-    }
-  }, []);
+    if (role === "admin") setTitle("Welcome to GatePass Admin Portal");
+    else setTitle(`Welcome to ${societyName}`);
+  }, [role, societyName]);
 
   const logout = () => {
     localStorage.removeItem("auth_user");
@@ -38,14 +30,8 @@ export default function Navbar() {
         </div>
 
         <div className="relative">
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className="flex items-center gap-2"
-          >
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-              className="w-8 h-8 rounded-full"
-            />
+          <button onClick={() => setShowMenu(!showMenu)} className="flex items-center gap-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" className="w-8 h-8 rounded-full" />
             <ChevronDown />
           </button>
 
