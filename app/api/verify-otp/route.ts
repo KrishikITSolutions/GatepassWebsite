@@ -1,117 +1,97 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/app/utils/supabase";
-import { v4 as uuidv4 } from "uuid"; // UUID for device_token
+import { otpStore } from "@/app/utils/otpStore";
+import crypto from "crypto";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { phone, code, device_token } = await req.json();
+    const { phone, code } = await req.json();
+    const formattedPhone = `91${phone}`;
 
-    if (!phone || !code) {
-      console.log("❌ Missing phone or OTP");
-      return NextResponse.json({
-        success: false,
-        message: "Phone and OTP required",
-        status: 400,
-      });
+    // ===== OTP CHECK =====
+    const record = otpStore[formattedPhone];
+    if (
+      !record ||
+      record.otp !== code ||
+      Date.now() > record.expiresAt
+    ) {
+      return NextResponse.json(
+        { success: false, message: "Invalid or expired OTP" },
+        { status: 401 }
+      );
     }
 
-    const formattedPhone = `91${phone.trim()}`;
-    console.log("🔹 Verify OTP request:", { phone: formattedPhone, code });
+    // Destroy OTP
+    delete otpStore[formattedPhone];
 
-    // ================= FETCH RESIDENT =================
-    const { data: resident, error: residentError } = await supabase
+    // ===== FETCH RESIDENT =====
+    const { data: resident } = await supabase
       .from("resident_profiles")
-      .select("resident_id, first_name, website_access, society_id")
+      .select(
+        "resident_id, first_name, phone_number, website_access, society_id"
+      )
       .eq("phone_number", formattedPhone)
       .maybeSingle();
 
-    console.log("🔹 Resident fetch result:", resident, residentError);
-
     if (!resident) {
-      console.log("❌ Resident not found");
-      return NextResponse.json({
-        success: false,
-        message: "User not registered. Please contact admin",
-        status: 404,
-      });
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
     }
 
-    if (!["admin", "rwa"].includes(resident.website_access)) {
-      console.log("❌ Resident not authorized:", resident.website_access);
-      return NextResponse.json({
-        success: false,
-        message: "You do not have permission to access this panel",
-        status: 403,
-      });
+    // ===== RWA → SINGLE SESSION =====
+    if (resident.website_access === "rwa") {
+      await supabase
+        .from("website_sessions")
+        .delete()
+        .eq("resident_id", resident.resident_id);
     }
 
-    // ================= OTP VERIFICATION =================
-    if (code.length !== 6) {
-      console.log("❌ Invalid OTP length");
-      return NextResponse.json({
-        success: false,
-        message: "Invalid OTP",
-        status: 400,
-      });
-    }
-    console.log("✅ OTP verified for", formattedPhone);
+    // ===== CREATE SESSION =====
+    const sessionToken = crypto.randomUUID();
+    const expiresAt = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000
+    );
 
-    // ================= CHECK EXISTING LOGIN ROW =================
-    const { data: existing, error: existingErr } = await supabase
-      .from("website_login")
-      .select("id")
-      .eq("phone_number", formattedPhone);
-
-    console.log("🔹 Existing login row:", existing, "Error:", existingErr);
-
-    const token = device_token || uuidv4(); // UUID device token
-    console.log("🔹 Device token to use:", token);
-
-    if (existing && existing.length > 0) {
-      // ================= UPDATE EXISTING ROW =================
-      const { error: updateErr } = await supabase
-        .from("website_login")
-        .update({ device_token: token, created_at: new Date() })
-        .eq("phone_number", formattedPhone);
-
-      if (updateErr) console.error("❌ Update error:", updateErr);
-      else console.log("✅ Existing login row updated");
-    } else {
-      // ================= INSERT FIRST TIME =================
-      const payload = {
-        resident_id: resident.resident_id,
-        first_name: resident.first_name,
-        website_access: resident.website_access,
-        society_id: resident.society_id,
-        phone_number: formattedPhone,
-        device_token: [token],
-        created_at: new Date(),
-      };
-      console.log("🔹 Insert payload:", payload);
-
-      const { error: insertErr } = await supabase
-        .from("website_login")
-        .insert(payload);
-
-      if (insertErr) console.error("❌ Insert error:", insertErr);
-      else console.log("✅ First login row inserted");
-    }
-
-    // ================= RETURN SUCCESS =================
-    return NextResponse.json({
-      success: true,
-      message: "Login successful. Redirecting to dashboard…",
-      role: resident.website_access,
-      society_id: resident.society_id,
-      device_token: token,
+    await supabase.from("website_sessions").insert({
+      resident_id: resident.resident_id,
+      full_name: resident.first_name,
+      phone_number: formattedPhone,
+      website_access: resident.website_access,
+      society_id:
+        resident.website_access === "admin"
+          ? null
+          : resident.society_id,
+      session_token: sessionToken,
+      expires_at: expiresAt,
     });
+
+    // ===== RESPONSE + COOKIE =====
+    const res = NextResponse.json({
+      success: true,
+      role: resident.website_access,
+      society_id:
+        resident.website_access === "admin"
+          ? "ALL"
+          : resident.society_id,
+    });
+
+    res.cookies.set("session", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      expires: expiresAt,
+    });
+
+    return res;
 
   } catch (err) {
-    console.error("❌ Verify OTP error:", err);
-    return NextResponse.json({
-      success: false,
-      message: "Server error. Try again",
-      status: 500,
-    });
+    console.error("VERIFY OTP ERROR:", err);
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
+    );
   }
 }

@@ -16,7 +16,7 @@ export default function Sidebar({ activePage, setActivePage, role }: any) {
     { name: "Dashboard", icon: FaLandmarkDome, path: "/dashboard" },
     { name: "Residents", icon: FaUser, path: "/dashboard/residents" },
     { name: "Payments", icon: FaCreditCard, path: "/dashboard/payments" },
-    { name: "V_M_S", icon: FaHome, path: "/dashboard/visitors" },
+    { name: "V_M_S", icon: FaHome, path: "/dashboard/visitor-management" },
     { name: "Notifications", icon: FaHome, path: "/dashboard/notifications", adminOnly: true },
   ];
 

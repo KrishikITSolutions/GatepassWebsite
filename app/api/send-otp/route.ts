@@ -1,52 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import twilio from "twilio";
 import { supabase } from "@/app/utils/supabase";
+import { otpStore } from "@/app/utils/otpStore"; // temporary OTP store
+import { v4 as uuidv4 } from "uuid";
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-const authToken = process.env.TWILIO_AUTH_TOKEN!;
-const client = twilio(accountSid, authToken);
-const fromNumber = process.env.TWILIO_PHONE_NUMBER!;
+
+import twilio from "twilio";
+
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+
+
 
 export async function POST(req: NextRequest) {
-  try {
-    const { phone } = await req.json();
+  const { phone } = await req.json();
 
-    if (!phone || phone.length !== 10) {
-      return NextResponse.json({ success: false, message: "Enter a 10-digit phone number" }, { status: 400 });
-    }
-
-    const formattedPhone = `91${phone.trim()}`;
-
-    // ✅ Check user + website_access
-    const { data: user } = await supabase
-      .from("resident_profiles")
-      .select("id, first_name, website_access, society_id")
-      .eq("phone_number", formattedPhone)
-      .maybeSingle();
-
-    if (!user) {
-      return NextResponse.json({ success: false, message: "User not registered. Please contact admin", status: 404 });
-    }
-
-    if (!["admin", "rwa"].includes(user.website_access)) {
-      return NextResponse.json({ success: false, message: "You are not authorized to access this portal. Please contact the community administrator.", status: 403 });
-    }
-
-    // ✅ Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log("Generated OTP:", otp);
-
-    // ✅ Send OTP via Twilio
-    const message = await client.messages.create({
-      body: `Your OTP is ${otp}`,
-      from: fromNumber,
-      to: `+${formattedPhone}`,
-    });
-    console.log("Twilio message SID:", message.sid);
-
-    return NextResponse.json({ success: true, message: "OTP sent successfully", otp }); // optional otp log
-  } catch (err) {
-    console.error("Send OTP error:", err);
-    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    return NextResponse.json({ success: false, message: "Invalid phone" }, { status: 400 });
   }
+
+  const formattedPhone = `91${phone}`;
+
+  const { data: resident } = await supabase
+    .from("resident_profiles")
+    .select("resident_id, website_access, society_id")
+    .eq("phone_number", formattedPhone)
+    .maybeSingle();
+
+  if (!resident) return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+
+
+  
+  // Generate OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore[formattedPhone] = { otp, expiresAt: Date.now() + 60000 }; // 1 min expiry
+
+  await client.messages.create({
+    body: `Your OTP is ${otp}`,
+    from: process.env.TWILIO_PHONE_NUMBER,
+    to: `+${formattedPhone}`,
+  });
+
+
+  console.log(`OTP for ${formattedPhone}: ${otp}`); // replace with Twilio send
+
+  return NextResponse.json({ success: true, message: "OTP sent" });
 }
