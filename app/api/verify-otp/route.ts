@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     // ===== FETCH RESIDENT =====
     const { data: resident } = await supabase
       .from("resident_profiles")
-      .select("resident_id, first_name, phone_number, website_access, society_id")
+      .select("gatepass_id, first_name, phone_number, website_access, society_id")
       .eq("phone_number", formattedPhone)
       .maybeSingle();
 
@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
       await supabase
         .from("website_sessions")
         .delete()
-        .eq("resident_id", resident.resident_id);
+        .eq("gatepass_id", resident.gatepass_id);
+
     }
 
     // ===== CREATE SESSION =====
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
     await supabase.from("website_sessions").insert({
-      resident_id: resident.resident_id,
+      gatepass_id: resident.gatepass_id,
       full_name: resident.first_name,
       phone_number: formattedPhone,
       website_access: resident.website_access,

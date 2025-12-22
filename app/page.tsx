@@ -6,6 +6,7 @@ import brochureBack from "../assets/gp1.png"
 import Header from '@/components/header';
 import { supabase } from './utils/supabase';
 import { useEffect, useState } from 'react'
+import buildings from '../assets/gpbg.jpg'
 
 
 interface Visitor {
@@ -38,64 +39,85 @@ export default function Dashboard() {
 
   console.log('Users are:', users)
 
-  return (
-    <div className="min-h-screen bg-white">
+ return (
+    <div
+      className="min-h-screen bg-fixed bg-center bg-cover bg-no-repeat relative text-gray-900"
+      // style={{
+      //   backgroundImage: `url(${BACKGROUND_IMAGE})`,
+      // }}
+       style={{
+        backgroundImage: `url(${buildings.src})`, //  imported image used here
+      }}
+    >
+      {/* Overlay for readability */}
+      <div className="absolute inset-0 bg-black/50"></div>
+
+      {/* Header */}
       <Header />
+
       {/* Hero Section */}
-      <section className="px-4 md:px-20 flex flex-col md:flex-row items-start justify-between py-16 gap-10">
-        {/* Left Side */}
-        <div className="w-full md:w-1/2 text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-            <span className="text-green-800">AI</span>-powered community management system
-          </h2>
-          <p className="mt-4 text-gray-600 text-lg">
-            Where Community Safety Meets Artificial Intelligence
+      <section className="relative z-10 px-6 md:px-20 flex flex-col md:flex-row items-center justify-between py-16 md:py-24 gap-12 max-w-7xl mx-auto text-white">
+        {/* Left Section */}
+       <div className="w-full md:w-1/2 text-center md:text-left space-y-8 p-8 rounded-2xl shadow-xl">
+        
+           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
+            <span className="text-[#28B8AE]">Ai</span>-powered Community <br /> Management System
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-200 max-w-md mx-auto md:mx-0 leading-relaxed">
+            Elevate your living with next-gen{" "}
+            <span className="text-[#28B8AE] font-semibold">security</span> and{" "}
+            <span className="text-[#28B8AE] font-semibold">automation</span>.
           </p>
-          <button className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-md text-lg shadow hover:bg-indigo-700">
-            Start creating free
-          </button>
 
-          {/* YouTube Embed video updated!*/}
-          
-          <div className="mt-10 flex justify-center md:justify-start w-full">
-  <div className="relative w-full pb-[56.25%] rounded-lg shadow-md overflow-hidden max-w-xl">
-    <iframe
-      className="absolute top-0 left-0 w-full h-full"
-      src="https://www.youtube.com/embed/_fROb_OlKbc"
-      title="YouTube video player"
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      referrerPolicy="strict-origin-when-cross-origin"
-      allowFullScreen
-    ></iframe>
-  </div>
-</div>
-
-
-
+         
         </div>
 
-        {/* Right Side - Brochure Images */}
-        <div className="w-full md:w-1/2 flex flex-col gap-6">
-          <Image
-            src={brochureBack}
-            alt="Frontend Brochure"
-            width={500}
-            height={500}
-            className="rounded-lg shadow-md w-full object-contain"
-          />
-          <Image
-            src={brochureFront}
-            alt="Backend Brochure"
-            width={500}
-            height={500}
-            className="rounded-lg shadow-md w-full object-contain"
-          />
+        {/* Right Section - Brochures */}
+        <div className="w-full md:w-1/2 flex flex-col gap-8 items-center">
+          <div className="relative group w-full max-w-md transition-all duration-500 hover:scale-[1.03]">
+            <Image
+              src={brochureBack}
+              alt="Frontend Brochure"
+              width={500}
+              height={500}
+              className="rounded-2xl shadow-2xl w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all rounded-2xl"></div>
+          </div>
+
+          <div className="relative group w-full max-w-md transition-all duration-500 hover:scale-[1.03]">
+            <Image
+              src={brochureFront}
+              alt="Backend Brochure"
+              width={500}
+              height={500}
+              className="rounded-2xl shadow-2xl w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all rounded-2xl"></div>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+      {/*  Compact Video Section */}
+      <section className="relative z-10 px-6 md:px-20 py-12 flex justify-center">
+        <div className="relative w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 hover:scale-[1.02] transition-all duration-500">
+          <iframe
+            className="w-full h-[220px] md:h-[300px]"
+            src="https://www.youtube.com/embed/_fROb_OlKbc"
+            title="AI-Powered Society Management"
+            
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </section>
+
+       {/* === Footer (outside overlay) === */}
+      <div className="relative z-20 bg-black/80 text-white">
+        <Footer />
+        </div>
     </div>
+      
   );
 }

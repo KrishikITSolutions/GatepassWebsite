@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -7,7 +6,7 @@ export default function TermsSummary() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <main className="max-w-4xl mx-auto px-4 md:px-0 py-10 text-gray-800 select-none" onContextMenu={(e) => e.preventDefault()}>
+      <main className="max-w-4xl mx-auto px-4 md:px-0 py-10 text-gray-800">
         <h1 className="text-3xl md:text-4xl font-bold mb-6">Terms of Service Summary</h1>
 
         <p className="italic mb-4 text-gray-600">

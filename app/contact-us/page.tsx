@@ -1,10 +1,20 @@
 
+"use client"
 
-import React from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
+import ReactGA from "react-ga4";
+import React, {useEffect} from "react";
+
+ReactGA.initialize("G-BL9LQDSL3V");
+
 export default function ContactUs() {
+
+  useEffect(() => {
+   ReactGA.send({ hitType: "pageview", page: "/contact-us", title: "ContactUs" });  
+ });
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />

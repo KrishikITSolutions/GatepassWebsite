@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
+      <header className="flex items-center justify-between  px-4 md:px-16 py-4 shadow-sm bg-white sticky top-0 z-50">
         {/* ========= Logo + Brand Name ========= */}
         <div className="flex items-center space-x-3 flex-shrink-0">
           <Link href="/" aria-label="Go to home" className="flex items-center">
@@ -27,17 +27,18 @@ export default function Header() {
               priority
             />
             <span className="text-3xl font-semibold text-[#28B8AE] tracking-wide relative top-[4px] ml-2">
-              GatePass
+              gatePass.Ai
             </span>
           </Link>
         </div>
 
         {/* ========= Center Menu ========= */}
         <div className="flex-1 flex justify-center hidden md:flex">
-          <nav className="flex items-center space-x-10 font-semibold text-lg text-gray-700">
+          <nav className="flex items-center space-x-5 font-semibold text-lg text-gray-700">
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
               Home
             </Link>
+            <span className="ml-1 text-sm">|</span>
 
             {/* Services Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
@@ -77,7 +78,7 @@ export default function Header() {
                 </Link>
               </div>
             </div>
-
+            <span className="ml-1 text-sm">|</span>
             {/* About Us Dropdown*/}
             <div className="relative group flex items-center cursor-pointer">
               <span className="hover:text-[#28B8AE] transition-colors font-semibold flex items-center">
@@ -90,24 +91,14 @@ export default function Header() {
                 >
                   Privacy Policy
                 </Link>
-                <Link
-                  href="/privacy-summary"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Privacy Summary
-                </Link>
+
                 <Link
                   href="/terms-of-service"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
                 >
-                  Terms of Service
+                  Terms and Conditions
                 </Link>
-                <Link
-                  href="/terms-of-service-summary"
-                  className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
-                >
-                  Terms Summary
-                </Link>
+
                 <Link
                   href="/refund-policy"
                   className="block px-4 py-2 text-gray-700 hover:bg-[#f0fdfa] hover:text-[#28B8AE]"
@@ -122,9 +113,10 @@ export default function Header() {
                 </Link>
               </div>
             </div>
+            <span className="ml-1 text-sm">|</span>
 
             <Link href="/" className="hover:text-[#28B8AE] transition-colors">
-              Career
+              Help
             </Link>
           </nav>
         </div>
@@ -195,9 +187,8 @@ export default function Header() {
       {/* This block is md:hidden and will be visually hidden when isMenuOpen is false */}
       <div
         id="mobile-menu"
-        className={`md:hidden bg-white shadow-md border-t border-gray-100 transition-all duration-300 ${
-          isMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
-        }`}
+        className={`md:hidden fixed top-[64px] left-0 w-full bg-white shadow-lg border-t border-gray-200 transition-all duration-300 overflow-hidden z-50 ${isMenuOpen ? "max-h-[100vh] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+          }`}
       >
         <nav className="flex flex-col p-4 space-y-3 font-semibold text-gray-700 text-base">
           {/* Home */}
@@ -252,15 +243,11 @@ export default function Header() {
               <Link href="/privacy-policy" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
                 Privacy Policy
               </Link>
-              <Link href="/privacy-summary" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
-                Privacy Summary
-              </Link>
+
               <Link href="/terms-of-service" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
-                Terms of Service
+                Terms and Conditions
               </Link>
-              <Link href="/terms-of-service-summary" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
-                Terms Summary
-              </Link>
+
               <Link href="/refund-policy" className="block hover:text-[#28B8AE]" onClick={() => setIsMenuOpen(false)}>
                 Refund Policy
               </Link>
