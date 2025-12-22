@@ -2,276 +2,229 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/app/utils/supabase";
-import DownloadButton from "@/components/download";
-import { motion } from "framer-motion";
-import SocietySelector from "@/components/societyselector";
 import { Users, Home, UserCheck, Phone, LogOut } from "lucide-react";
+import SocietySelector from "@/components/societyselector";
 
+// UUIDs
 const OWNER_UUID = "beeb50a5-5769-41a5-a121-4c6dd62c06ce";
 const TENANT_UUID = "bd0986d4-4e4c-453b-9504-bfff91fe75f2";
 
+type Resident = {
+  first_name: string;
+  tower: string;
+  flat_no: string;
+  phone_number: string;
+};
+
 const cards = [
   { key: "total", label: "Total Residents", icon: Users },
-  { key: "login", label: "Login-Devices", icon: Phone },
-  { key: "logout", label: "Logout-Devices", icon: LogOut },
   { key: "owners", label: "Owners", icon: Home },
   { key: "tenants", label: "Tenants", icon: UserCheck },
+  { key: "login", label: "Login Devices", icon: Phone },
+  { key: "logout", label: "Logout Devices", icon: LogOut },
 ];
 
-export default function TotalMembersWithDownloads() {
+export default function TotalMembersDashboard() {
   const [selectedSociety, setSelectedSociety] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"admin" | "rwa" | null>(null);
 
-  // counts
-  const [totalResidents, setTotalResidents] = useState<number>(0);
-  const [loginDevices, setLoginDevices] = useState<number>(0);
-  const [logoutDevices, setLogoutDevices] = useState<number>(0);
-  const [ownersCount, setOwnersCount] = useState<number>(0);
-  const [tenantsCount, setTenantsCount] = useState<number>(0);
+  const [stats, setStats] = useState<Record<string, number>>({});
+  const [popupCard, setPopupCard] = useState<string | null>(null);
+  const [showList, setShowList] = useState(false);
+  const [listData, setListData] = useState<Resident[]>([]);
 
-  // modal
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalFor, setModalFor] = useState<string | null>(null);
-  const [modalList, setModalList] = useState<any[]>([]);
-  const [loadingModalList, setLoadingModalList] = useState(false);
-
-  // -------------------------
-  // Get logged-in user role
-  // -------------------------
+  /* ---------------- Load user ---------------- */
   useEffect(() => {
     const raw = localStorage.getItem("auth_user");
     if (!raw) return;
+
     const user = JSON.parse(raw);
-    console.log("[TotalMembers] Logged-in user:", user);
     setUserRole(user.role);
-    if (user.role === "rwa") {
-      setSelectedSociety(user.society_id); // fixed society for RWA
-    }
+    setSelectedSociety(user.role === "rwa" ? user.society_id : "ALL");
   }, []);
 
-  // -------------------------
-  // Load counts based on selected society
-  // -------------------------
+  /* ---------------- Load counts ---------------- */
   useEffect(() => {
-    if (!selectedSociety) return;
+    if (!selectedSociety || !userRole) return;
+
+    const societyFilter = selectedSociety === "ALL" ? null : selectedSociety;
 
     const loadStats = async () => {
-      console.log("[TotalMembers] Loading stats for society:", selectedSociety);
-      try {
-        // TOTAL RESIDENTS
-        let totalQuery = supabase.from("resident_profiles").select("*", { count: "exact", head: true });
-        if (selectedSociety !== "ALL") totalQuery = totalQuery.eq("society_id", selectedSociety);
-        const { count: total } = await totalQuery;
-        setTotalResidents(total || 0);
+      const newStats: Record<string, number> = {};
 
-        // OWNERS
-        let ownersQuery = supabase
-          .from("resident_profiles")
-          .select("*", { count: "exact", head: true })
-          .eq("resident_type_id", OWNER_UUID);
-        if (selectedSociety !== "ALL") ownersQuery = ownersQuery.eq("society_id", selectedSociety);
-        const { count: ownerCount } = await ownersQuery;
-        setOwnersCount(ownerCount || 0);
+      // Total
+      let totalQ = supabase
+        .from("resident_profiles")
+        .select("*", { count: "exact", head: true });
+      if (societyFilter) totalQ = totalQ.eq("society_id", societyFilter);
+      newStats.total = (await totalQ).count ?? 0;
 
-        // TENANTS
-        let tenantsQuery = supabase
-          .from("resident_profiles")
-          .select("*", { count: "exact", head: true })
-          .eq("resident_type_id", TENANT_UUID);
-        if (selectedSociety !== "ALL") tenantsQuery = tenantsQuery.eq("society_id", selectedSociety);
-        const { count: tenantCount } = await tenantsQuery;
-        setTenantsCount(tenantCount || 0);
+      // Owners
+      let ownersQ = supabase
+        .from("resident_profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("resident_type_id", OWNER_UUID);
+      if (societyFilter) ownersQ = ownersQ.eq("society_id", societyFilter);
+      newStats.owners = (await ownersQ).count ?? 0;
 
-        if (userRole === "admin") {
-          // LOGIN DEVICES
-          let loginQuery = supabase
-            .from("resident_profiles")
-            .select("*", { count: "exact", head: true })
-            .not("device_token", "is", null)
-            .not("device_token", "eq", "{}");
-          if (selectedSociety !== "ALL") loginQuery = loginQuery.eq("society_id", selectedSociety);
-          const { count: loginCount } = await loginQuery;
-          setLoginDevices(loginCount || 0);
+      // Tenants
+      let tenantsQ = supabase
+        .from("resident_profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("resident_type_id", TENANT_UUID);
+      if (societyFilter) tenantsQ = tenantsQ.eq("society_id", societyFilter);
+      newStats.tenants = (await tenantsQ).count ?? 0;
 
-          // LOGOUT DEVICES
-          let logoutQuery = supabase
-            .from("resident_profiles")
-            .select("*", { count: "exact", head: true })
-            .or("device_token.is.null,device_token.eq.{}");
-          if (selectedSociety !== "ALL") logoutQuery = logoutQuery.eq("society_id", selectedSociety);
-          const { count: logoutCount } = await logoutQuery;
-          setLogoutDevices(logoutCount || 0);
-        }
-      } catch (err) {
-        console.error("[TotalMembers] loadStats exception:", err);
-      }
+      // Login / Logout
+      let loginQ = supabase.from("resident_profiles").select("device_token");
+      if (societyFilter) loginQ = loginQ.eq("society_id", societyFilter);
+      const { data } = await loginQ;
+
+      const loginCount =
+        data?.reduce(
+          (s: number, r: any) =>
+            s + (Array.isArray(r.device_token) ? r.device_token.length : 0),
+          0
+        ) ?? 0;
+
+      const logoutCount =
+        data?.filter(
+          (r: any) =>
+            !Array.isArray(r.device_token) || r.device_token.length === 0
+        ).length ?? 0;
+
+      newStats.login = loginCount;
+      newStats.logout = logoutCount;
+
+      setStats(newStats);
     };
 
     loadStats();
   }, [selectedSociety, userRole]);
 
-  // -------------------------
-  // Modal fetch on card click
-  // -------------------------
-  const onCardClick = async (key: string) => {
-    if (!selectedSociety && userRole === "admin") {
-      alert("Please select a society first");
-      return;
+  /* ---------------- Fetch list data ---------------- */
+  const loadListData = async (key: string) => {
+    let query = supabase
+      .from("resident_profiles")
+      .select("first_name, tower, flat_no, phone_number");
+
+    if (selectedSociety !== "ALL") {
+      query = query.eq("society_id", selectedSociety);
     }
 
-    setModalFor(key);
-    setModalOpen(true);
-    setLoadingModalList(true);
+    if (key === "owners") query = query.eq("resident_type_id", OWNER_UUID);
+    if (key === "tenants") query = query.eq("resident_type_id", TENANT_UUID);
 
-    try {
-      let q = supabase
-        .from("resident_profiles")
-        .select(
-          "first_name, flat as flat_no, tower as tower_name, phone_number, resident_sub_type, device_token"
-        );
-
-      // Society filter
-      if (selectedSociety && selectedSociety !== "ALL") {
-        q = q.eq("society_id", selectedSociety);
-      }
-
-      // Category filter
-      switch (key) {
-        case "owners":
-          q = q.eq("resident_sub_type", OWNER_UUID);
-          break;
-        case "tenants":
-          q = q.eq("resident_sub_type", TENANT_UUID);
-          break;
-        case "login":
-          q = q.not("device_token", "is", null).not("device_token", "eq", "{}");
-          break;
-        case "logout":
-          q = q.or("device_token.is.null,device_token.eq.{}");
-          break;
-      }
-
-      const { data, error } = await q;
-      if (error) throw error;
-
-      const normalized = (data || []).map((r: any) => ({
-        first_name: r.first_name ?? "",
-        flat_no: r.flat_no ?? "",
-        tower_name: r.tower_name ?? "",
-        phone_number: r.phone_number ?? "",
-      }));
-
-      setModalList(normalized);
-    } catch (err) {
-      console.error("[TotalMembers] fetch list error:", err);
-      setModalList([]);
-    } finally {
-      setLoadingModalList(false);
-    }
+    const { data } = await query;
+    setListData(data || []);
+    setShowList(true);
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setModalFor(null);
-    setModalList([]);
-  };
+  const visibleCards =
+    userRole === "rwa"
+      ? cards.filter(c =>
+          ["total", "owners", "tenants", "login", "logout"].includes(c.key)
+        )
+      : cards;
 
-  const getCountForModal = () => {
-    if (modalList && modalList.length > 0) return modalList.length;
-    switch (modalFor) {
-      case "owners":
-        return ownersCount;
-      case "tenants":
-        return tenantsCount;
-      case "login":
-        return loginDevices;
-      case "logout":
-        return logoutDevices;
-      case "total":
-      default:
-        return totalResidents;
-    }
-  };
-
-  // -------------------------
-  // Role-based cards
-  // -------------------------
-  const displayedCards = userRole === "rwa"
-    ? cards.filter(c => ["total", "owners", "tenants"].includes(c.key))
-    : cards;
+  const activeCard = visibleCards.find(c => c.key === popupCard);
+  const ActiveIcon = activeCard?.icon;
 
   return (
     <div className="p-10 bg-gray-100 min-h-screen">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-4xl font-bold text-center text-gray-800 mb-10"
-      >
+      <h1 className="text-4xl font-bold text-center mb-10">
         Total Members Dashboard
-      </motion.h1>
+      </h1>
 
-      {/* SocietySelector for admin only */}
       {userRole === "admin" && (
         <div className="flex justify-center mb-10">
-          <SocietySelector
-            value={selectedSociety}
-            onChange={(val) => setSelectedSociety(val)}
-          />
+          <SocietySelector value={selectedSociety} onChange={setSelectedSociety} />
         </div>
       )}
 
-      {/* Cards grid */}
+      {/* Main cards – NO COUNTS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {displayedCards.map((c) => (
+        {visibleCards.map(card => (
           <div
-            key={c.key}
-            onClick={() => onCardClick(c.key)}
-            className="bg-white p-6 rounded-2xl shadow text-center cursor-pointer hover:shadow-lg transition"
+            key={card.key}
+            onClick={() => {
+              setPopupCard(card.key);
+              setShowList(false);
+            }}
+            className="bg-white p-6 rounded-2xl shadow text-center cursor-pointer hover:shadow-lg"
           >
-            <h2 className="text-xl font-semibold text-gray-700">{c.label}</h2>
-            <p className="text-4xl font-bold text-teal-600 mt-3">
-              {{
-                total: totalResidents,
-                login: loginDevices,
-                logout: logoutDevices,
-                owners: ownersCount,
-                tenants: tenantsCount,
-              }[c.key]}
-            </p>
+            <card.icon className="mx-auto mb-3 text-teal-600" size={32} />
+            <h2 className="text-lg font-semibold">{card.label}</h2>
           </div>
         ))}
       </div>
 
-      {/* Modal */}
-      {modalOpen && modalFor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative">
+      {/* Popup */}
+      {popupCard && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 w-[520px] relative">
             <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-3xl text-gray-400 hover:text-gray-700"
+              onClick={() => {
+                setPopupCard(null);
+                setShowList(false);
+              }}
+              className="absolute top-3 right-4 text-2xl font-bold"
             >
               ×
             </button>
 
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
-              {cards.find((c) => c.key === modalFor)?.label}
-            </h2>
-
-            <div className="text-center py-6 bg-gray-50 rounded-xl mb-6">
-              {loadingModalList ? (
-                <p className="text-gray-700 font-semibold">Loading count...</p>
-              ) : (
-                <p className="text-gray-700 font-semibold">{getCountForModal()} records</p>
+            {/* Icon + Heading */}
+            <div className="flex flex-col items-center mb-4">
+              {ActiveIcon && (
+                <ActiveIcon className="text-teal-600 mb-2" size={32} />
               )}
+              <h2 className="text-2xl font-semibold">
+                {activeCard?.label}
+              </h2>
             </div>
 
-            <div className="flex justify-center gap-4">
-              <DownloadButton
-                fileName={`${modalFor}_export`}
-                data={modalList.length > 0 ? modalList : []}
-              />
-            </div>
+            {/* Count */}
+            <p className="text-5xl font-bold text-teal-700 text-center mb-6">
+              {stats[popupCard] ?? 0}
+            </p>
+
+            {/* View button */}
+            {!showList && (
+              <div className="flex justify-center">
+                <button
+                  onClick={() => loadListData(popupCard)}
+                  className="px-6 py-2 bg-teal-600 text-white rounded-full font-semibold"
+                >
+                  View
+                </button>
+              </div>
+            )}
+
+            {/* Scrollable list */}
+            {showList && (
+              <div className="mt-6 max-h-72 overflow-y-auto border rounded-xl">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-gray-100">
+                    <tr>
+                      <th className="p-3 text-left">Name</th>
+                      <th className="p-3">Tower</th>
+                      <th className="p-3">Flat</th>
+                      <th className="p-3">Phone</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {listData.map((r, i) => (
+                      <tr key={i} className="border-t">
+                        <td className="p-3">{r.first_name}</td>
+                        <td className="p-3 text-center">{r.tower}</td>
+                        <td className="p-3 text-center">{r.flat_no}</td>
+                        <td className="p-3 text-center">{r.phone_number}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

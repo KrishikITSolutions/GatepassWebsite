@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react";
 import DownloadButton from "@/components/download";
-
 import { motion } from "framer-motion";
-import Lottie from "lottie-react";
 import { supabase } from "@/app/utils/supabase";
 import SocietySelector from "@/components/societyselector";
-
+import { Truck, User, Car, Users, Home } from "lucide-react";
 
 // -------------------------------------------
 // Types
@@ -23,14 +21,14 @@ interface VisitorEntry {
 }
 
 // -------------------------------------------
-// Categories UI
+// Categories UI with icons
 // -------------------------------------------
 const categories = [
-  { name: "Deliveries", lottie: require("@/assets/delivery.json"), text: "text-indigo-600" },
-  { name: "Visitors", lottie: require("@/assets/visitor.json"), text: "text-green-600" },
-  { name: "Cabs", lottie: require("@/assets/cabEntry.json"), text: "text-yellow-600" },
-  { name: "Workers", lottie: require("@/assets/workers.json"), text: "text-pink-600" },
-  { name: "Daily Help", lottie: require("@/assets/help.json"), text: "text-purple-600" },
+  { name: "Deliveries", icon: Truck },
+  { name: "Visitors", icon: User },
+  { name: "Cabs", icon: Car },
+  { name: "Workers", icon: Users },
+  { name: "Daily Help", icon: Home },
 ];
 
 // -------------------------------------------
@@ -54,23 +52,20 @@ export default function VisitorManagementSystem() {
   const [visitorData, setVisitorData] = useState<VisitorEntry[]>([]);
   const [userRole, setUserRole] = useState<"admin" | "rwa" | null>(null);
   const [societyId, setSocietyId] = useState<string | null>(null);
-  const [societyName, setSocietyName] = useState<string>("");
 
-
-
-  // Core Fetch Logic
-
+  // -------------------------------------------
+  // Fetch visitor data
+  // -------------------------------------------
   const fetchFilteredData = async () => {
     if (!selectedCategory) return;
-    if (!societyId) return; // 🚨 IMPORTANT
-
+    if (!societyId && userRole === "rwa") return;
 
     try {
       const now = new Date();
       let startISO = "";
       let endISO = new Date().toISOString();
 
-      // Date filter logic
+      // Date filter
       switch (filterType) {
         case "1 Day":
           startISO = new Date(now.setHours(0, 0, 0, 0)).toISOString();
@@ -90,20 +85,22 @@ export default function VisitorManagementSystem() {
 
       const mapping: Record<string, string> = {
         Deliveries: "delivery",
-        Visitors: "visitor", // Special-case below
+        Visitors: "visitor",
         Cabs: "cab",
         Workers: "workers",
         "Daily Help": "dailyhelp",
       };
 
-      let query = supabase
-        .from("visitors_enrtries")
-        .select("*")
-        .eq("society_id", societyId)
-        .gte("start_date", startISO)
-        .lte("start_date", endISO);
+      let query = supabase.from("visitors_enrtries").select("*");
 
-      // Special logic for Visitors tab
+      // Society filter: skip if "ALL" is selected
+      if (societyId && societyId !== "ALL") {
+        query = query.eq("society_id", societyId);
+      }
+
+      query = query.gte("start_date", startISO).lte("start_date", endISO);
+
+      // Guest type
       if (selectedCategory === "Visitors") {
         query = query.eq("guest_type", activeVisitorTab === "preapproval" ? "guest" : "visitor");
       } else {
@@ -120,22 +117,9 @@ export default function VisitorManagementSystem() {
     }
   };
 
-  useEffect(() => {
-    if (selectedCategory && societyId) {
-      fetchFilteredData();
-    }
-  }, [
-    selectedCategory,
-    filterType,
-    customStart,
-    customEnd,
-    activeVisitorTab,
-    societyId,
-  ]);
-
-
-
-
+  // -------------------------------------------
+  // Initialize user role and default society
+  // -------------------------------------------
   useEffect(() => {
     const raw = localStorage.getItem("auth_user");
     if (!raw) return;
@@ -143,31 +127,25 @@ export default function VisitorManagementSystem() {
     const user = JSON.parse(raw);
     setUserRole(user.role);
 
-    // RWA → fixed society
     if (user.role === "rwa") {
       setSocietyId(user.society_id);
+    } else if (user.role === "admin") {
+      setSocietyId("ALL"); // default to All Societies
     }
   }, []);
 
+  // Fetch when category or filters change
   useEffect(() => {
     if (selectedCategory && societyId) {
       fetchFilteredData();
     }
-  }, [societyId]);
+  }, [selectedCategory, filterType, customStart, customEnd, activeVisitorTab, societyId]);
 
-  useEffect(() => {
-  console.log("ROLE:", userRole);
-  console.log("SOCIETY ID:", societyId);
-}, [userRole, societyId]);
-
-
-
+  // -------------------------------------------
   // UI
-
+  // -------------------------------------------
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-
-      {/* Heading */}
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -177,20 +155,18 @@ export default function VisitorManagementSystem() {
         Visitor Management System
       </motion.h1>
 
-
-      {/* ADMIN → Society Selector */}
+      {/* Society Selector for Admin */}
       {userRole === "admin" && (
         <div className="flex justify-center mt-6">
           <SocietySelector
             value={societyId}
             onChange={(id) => {
               setSocietyId(id);
-              setSelectedCategory(null); // 🔥 IMPORTANT
+              setSelectedCategory(null);
               setVisitorData([]);
               setTotalEntries(0);
             }}
           />
-
         </div>
       )}
 
@@ -200,7 +176,7 @@ export default function VisitorManagementSystem() {
         </p>
       )}
 
-      {/* Category Cards */}
+      {/* Category Cards - Residents Style with icons */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6 mb-6 mt-10">
         {categories.map((cat) => (
           <div
@@ -210,35 +186,27 @@ export default function VisitorManagementSystem() {
                 alert("Please select a society first");
                 return;
               }
-
               setSelectedCategory(cat.name);
               setFilterType("1 Day");
               setCustomStart("");
               setCustomEnd("");
               setActiveVisitorTab("preapproval");
             }}
-            
-
-            className="cursor-pointer p-8 rounded-2xl shadow hover:shadow-xl transition flex flex-col items-center"
+            className="cursor-pointer p-6 rounded-2xl shadow hover:shadow-xl transition flex flex-col items-center bg-white"
           >
-
-            
-            <div className={`${cat} p-4 rounded-full mb-3`}>
-              <Lottie animationData={cat.lottie} loop className="w-16 h-16" />
+            {/* Icon */}
+            <div className="p-4 rounded-full mb-3 bg-gray-100 flex items-center justify-center w-16 h-16">
+              <cat.icon className="text-teal-600" size={28} />
             </div>
-            <h2 className={`text-lg font-semibold ${cat.text}`}>{cat.name}</h2>
+            <h2 className="text-lg font-semibold text-gray-800">{cat.name}</h2>
           </div>
         ))}
       </div>
 
-      
-
-      {/* Popup Modal */}
+      {/* Popup Modal - untouched */}
       {selectedCategory && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl w-full max-w-2xl p-8 shadow-2xl relative">
-
-            {/* Close button */}
             <button
               onClick={() => setSelectedCategory(null)}
               className="absolute top-4 right-4 text-gray-600 text-3xl font-bold"
@@ -313,7 +281,6 @@ export default function VisitorManagementSystem() {
                 fileName={`${selectedCategory}-export`}
               />
             </div>
-
           </div>
         </div>
       )}

@@ -4,16 +4,9 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "../utils/supabase";
-import {
-  Users,
-  Truck,
-  HardHat,
-  CarFront,
-  TrendingUp,
-  Loader2,
-} from "lucide-react";
+import { Users, Truck, HardHat, CarFront, TrendingUp, Loader2 } from "lucide-react";
 
-const ENTRY_COLORS = ["#3B82F6", "#6366F1", "#48bbecff", "#0bf5e2ff"];
+const ENTRY_COLORS = ["#3bf6eaff", "#b163f1ff", "#ec48dbff", "#10a0b9ff"];
 const PAYMENT_COLORS = ["#10B981", "#F87171"];
 
 export default function DashboardSection() {
@@ -22,39 +15,18 @@ export default function DashboardSection() {
   const [todayStats, setTodayStats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // AUTH USER (UNCHANGED BASE)
-  const authUser =
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("auth_user") || "{}")
-      : null;
+  const authUser = typeof window !== "undefined" 
+    ? JSON.parse(localStorage.getItem("auth_user") || "{}") 
+    : null;
 
   const { role, society_id } = authUser || {};
 
-  console.log(" AUTH USER:", authUser);
-  console.log(" ROLE:", role);
-  console.log(" SOCIETY ID:", society_id);
-
   /* ===================== MONTHLY ENTRIES ===================== */
   const fetchMonthlyEntries = async () => {
-    console.log(" Fetching Monthly Entries...");
-
     const entryTypes = ["delivery", "visitor", "cab", "workers"];
     const now = new Date();
-
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0,
-      23,
-      59,
-      59
-    );
-
-    console.log(" Monthly Range:", {
-      start: monthStart.toISOString(),
-      end: monthEnd.toISOString(),
-    });
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
     const results = await Promise.all(
       entryTypes.map(async (type) => {
@@ -65,15 +37,8 @@ export default function DashboardSection() {
           .gte("start_date", monthStart.toISOString())
           .lte("start_date", monthEnd.toISOString());
 
-        if (role === "rwa" && society_id) {
-          query = query.eq("society_id", society_id);
-        }
-
-
-        const { count, error } = await query;
-
-        console.log(` Monthly ${type}:`, count);
-        if (error) console.error(" Monthly error:", error);
+        if (role === "rwa") query = query.eq("society_id", society_id);
+        const { count } = await query;
 
         return {
           name: type.charAt(0).toUpperCase() + type.slice(1),
@@ -87,18 +52,10 @@ export default function DashboardSection() {
 
   /* ===================== TODAY LIVE DATA ===================== */
   const fetchTodayStats = async () => {
-    console.log(" Fetching Today Live Data...");
-
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
-
-    console.log(" Today Range:", {
-      start: todayStart.toISOString(),
-      end: todayEnd.toISOString(),
-    });
 
     const getCount = async (type: string) => {
       let query = supabase
@@ -108,16 +65,8 @@ export default function DashboardSection() {
         .gte("start_date", todayStart.toISOString())
         .lte("start_date", todayEnd.toISOString());
 
-      if (role === "rwa" && society_id) {
-  query = query.eq("society_id", society_id);
-}
-
-
-      const { count, error } = await query;
-
-      console.log(` Today ${type}:`, count);
-      if (error) console.error(" Today error:", error);
-
+      if (role === "rwa") query = query.eq("society_id", society_id);
+      const { count } = await query;
       return count || 0;
     };
 
@@ -138,42 +87,25 @@ export default function DashboardSection() {
 
   /* ===================== PAYMENTS ===================== */
   const fetchPaymentStats = async () => {
-    console.log(" Fetching Payment Stats...");
-
     const now = new Date();
     const monthText = now.toLocaleString("default", { month: "long" });
     const year = now.getFullYear();
-
-    console.log(" Payment Filters:", { monthText, year });
 
     const getCount = async (paid: boolean) => {
       let query = supabase
         .from("payment_details")
         .select("id", { count: "exact", head: true })
-        // .eq("month", monthText) //  DECEMBER / december FIX
-        // .eq("month_number", now.getMonth() + 1)
         .ilike("month", monthText)
-
         .eq("year", year)
         .eq("paid_status", paid);
 
-      if (role === "rwa" && society_id) {
-  query = query.eq("society_id", society_id);
-}
-
-
-      const { count, error } = await query;
-
-      console.log(`💳 ${paid ? "PAID" : "UNPAID"} COUNT:`, count);
-      if (error) console.error(" Payment error:", error);
-
+      if (role === "rwa") query = query.eq("society_id", society_id);
+      const { count } = await query;
       return count || 0;
     };
 
     const paid = await getCount(true);
     const unpaid = await getCount(false);
-
-    console.log(" FINAL PAYMENT TOTAL:", { paid, unpaid });
 
     setPaymentData([
       { name: "Paid", value: paid },
@@ -183,21 +115,11 @@ export default function DashboardSection() {
 
   /* ===================== INIT ===================== */
   useEffect(() => {
-    if (!role) return;
-
     (async () => {
-      setLoading(true);
-
-      await Promise.all([
-        fetchMonthlyEntries(),
-        fetchTodayStats(),
-        fetchPaymentStats(),
-      ]);
-
+      await Promise.all([fetchMonthlyEntries(), fetchTodayStats(), fetchPaymentStats()]);
       setLoading(false);
     })();
-  }, [role, society_id]);
-
+  }, []);
 
   if (loading)
     return (
@@ -215,29 +137,16 @@ export default function DashboardSection() {
 
       {/* PIE CHARTS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <ChartCard
-          title="Monthly Entries"
-          data={monthlyData}
-          colors={ENTRY_COLORS}
-        />
-        <ChartCard
-          title="Payment Status"
-          data={paymentData}
-          colors={PAYMENT_COLORS}
-        />
+        <ChartCard title="Monthly Entries" data={monthlyData} colors={ENTRY_COLORS} />
+        <ChartCard title="Payment Status" data={paymentData} colors={PAYMENT_COLORS} />
       </div>
 
       {/* TODAY LIVE DATA */}
       <div>
-        <h2 className="text-2xl font-bold text-center mb-6">
-          Today's Live Data
-        </h2>
+        <h2 className="text-2xl font-bold text-center mb-6">Today's Live Data</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {todayStats.map((stat, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl p-6 shadow text-center"
-            >
+            <div key={idx} className="bg-white rounded-2xl p-6 shadow text-center">
               <stat.icon className="mx-auto mb-2 text-[#28B8AE]" />
               <p className="text-gray-500">{stat.title}</p>
               <p className="text-2xl font-bold">{stat.value}</p>
@@ -255,14 +164,14 @@ const ChartCard = ({ title, data, colors }: any) => {
 
   return (
     <div className="bg-white rounded-3xl p-8 shadow-lg">
-      <div className="flex justify-between mb-4">
-        <h3 className="text-xl font-semibold">{title}</h3>
-        <TrendingUp />
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+        <TrendingUp className="text-gray-400" />
       </div>
 
       <ResponsiveContainer width="100%" height={260}>
         <PieChart>
-          <Pie data={data} dataKey="value" innerRadius={70} outerRadius={110}>
+          <Pie data={data} dataKey="value" innerRadius={70} outerRadius={110} paddingAngle={3}>
             {data.map((_: any, i: number) => (
               <Cell key={i} fill={colors[i % colors.length]} />
             ))}
@@ -271,7 +180,23 @@ const ChartCard = ({ title, data, colors }: any) => {
         </PieChart>
       </ResponsiveContainer>
 
-      <p className="text-center text-2xl font-bold mt-4">{total}</p>
+      <p className="text-center text-2xl font-bold text-gray-800 mt-4">
+        Total: {total}
+      </p>
+
+      {/* STRAIGHT LEGEND */}
+      <div
+        className={`mt-6 grid gap-4 text-sm ${
+          data.length > 2 ? "grid-cols-4" : "grid-cols-2"
+        }`}
+      >
+        {data.map((item: any, i: number) => (
+          <div key={i} className="flex items-center justify-center gap-2">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: colors[i % colors.length] }} />
+            <span className="text-gray-600 font-medium">{item.name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

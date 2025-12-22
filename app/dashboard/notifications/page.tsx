@@ -1,27 +1,39 @@
 "use client";
 
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/app/utils/supabase";
 import { CheckCircle, XCircle, Bell } from "lucide-react";
 import SocietySelector from "@/components/societyselector";
 
 export default function SendNotificationPage() {
-  const [societyId, setSocietyId] = useState("");
+  const [societyId, setSocietyId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [category, setCategory] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [category, setCategory] = useState("");
+  const [userRole, setUserRole] = useState<"admin" | "rwa" | null>(null);
 
-
-
-  
-  console.log("Upload image:", file);
+  // Toast helper
   const showToast = (type: string, text: string) => {
     setToast({ type, text });
     setTimeout(() => setToast(null), 3000);
   };
+
+  // Initialize role and default society
+  useEffect(() => {
+    const raw = localStorage.getItem("auth_user");
+    if (!raw) return;
+    const user = JSON.parse(raw);
+    setUserRole(user.role);
+
+    if (user.role === "rwa") {
+      setSocietyId(user.society_id);
+    } else if (user.role === "admin") {
+      setSocietyId("ALL"); // default to All Societies
+    }
+  }, []);
 
   const handleSend = async () => {
     if (!societyId || !title || !message) {
@@ -34,35 +46,30 @@ export default function SendNotificationPage() {
       let mediaUrl: string | null = null;
       let mediaType: "image" | "video" | null = null;
 
-      // Upload file if selected
+      // Upload file if provided
       if (file) {
         const ext = file.name.split(".").pop();
         const fileName = `${Date.now()}.${ext}`;
 
         const { data, error } = await supabase.storage
           .from("admin_notifications")
-          .upload(fileName, file, {
-            contentType: file.type,
-          });
+          .upload(fileName, file, { contentType: file.type });
 
         if (error) {
           showToast("error", "Failed to upload file");
           console.log("Upload error:", error.message);
           setLoading(false);
           return;
-        } 
+        }
 
-        // Get public URL
         mediaUrl = supabase.storage
           .from("admin_notifications")
           .getPublicUrl(fileName).data.publicUrl;
 
         mediaType = file.type.startsWith("image") ? "image" : "video";
-
-        console.log("Uploaded media URL:", mediaUrl);
       }
 
-      //  CALL ONLY EDGE FUNCTION — NO INSERT from client
+      // Call edge function
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/Website-Notifications`,
         {
@@ -88,10 +95,10 @@ export default function SendNotificationPage() {
         showToast("error", result.error || "Something went wrong.");
       } else {
         showToast("success", "Notification sent successfully!");
-        setSocietyId("");
         setTitle("");
         setMessage("");
         setFile(null);
+        if (userRole === "admin") setSocietyId("ALL");
       }
     } catch (err: any) {
       showToast("error", err.message || "Unexpected error");
@@ -100,16 +107,9 @@ export default function SendNotificationPage() {
     setLoading(false);
   };
 
-  useEffect(() => {
-  console.log("Selected society_id:", societyId);
-}, [societyId]);
-
-
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
       <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 relative">
-
         {/* Header */}
         <div className="flex items-center justify-center mb-6">
           <Bell size={40} className="text-[#28B8AE]" />
@@ -119,36 +119,31 @@ export default function SendNotificationPage() {
           Send Notification
         </h2>
 
-        
         {/* Society Selector */}
-        <div className="mb-6">
-          <label className="font-semibold text-gray-800 mb-1 block">
-            Select Society
-          </label>
-
-          
-
-          <SocietySelector
-            value={societyId || null}
-            onChange={(id) => setSocietyId(id ?? "")}
-          />
-        </div>
-        
-        
+        {userRole === "admin" && (
+          <div className="mb-6">
+            <label className="font-semibold text-gray-800 mb-1 block">Select Society</label>
+            <SocietySelector
+              value={societyId}
+              onChange={(id) => setSocietyId(id ?? "ALL")}
+            />
+          </div>
+        )}
 
         {/* Category */}
-        <label className="font-semibold text-gray-800">Category</label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border p-2 rounded w-full"
-        >
-          <option value="">Select Category</option>
-          <option value="emergency">🚨 Emergency</option>
-          <option value="warning">⚠️ Warning</option>
-          <option value="general">ℹ️ General Info</option>
-        </select>
-        <div className="h-4" />
+        <div className="mb-6">
+          <label className="font-semibold text-gray-800">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border p-2 rounded w-full"
+          >
+            <option value="">Select Category</option>
+            <option value="emergency">🚨 Emergency</option>
+            <option value="warning">⚠️ Warning</option>
+            <option value="general">ℹ️ General Info</option>
+          </select>
+        </div>
 
         {/* Title */}
         <div className="mb-6">
@@ -189,10 +184,7 @@ export default function SendNotificationPage() {
           onClick={handleSend}
           disabled={loading}
           className={`w-full py-3 rounded-xl text-white font-semibold text-lg shadow-lg transition-all active:scale-[0.97]
-            ${loading
-              ? "bg-[#28B8AE]/60 cursor-not-allowed"
-              : "bg-[#28B8AE] hover:bg-[#239b96]"
-            }`}
+            ${loading ? "bg-[#28B8AE]/60 cursor-not-allowed" : "bg-[#28B8AE] hover:bg-[#239b96]"}`}
         >
           {loading ? "Sending..." : "Send Notification"}
         </button>
@@ -207,7 +199,6 @@ export default function SendNotificationPage() {
             <span className="font-medium">{toast.text}</span>
           </div>
         )}
-
       </div>
     </div>
   );
