@@ -50,7 +50,7 @@ export default function SendNotificationPage() {
           console.log("Upload error:", error.message);
           setLoading(false);
           return;
-        }
+        } 
 
         // Get public URL
         mediaUrl = supabase.storage

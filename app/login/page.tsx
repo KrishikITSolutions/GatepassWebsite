@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -10,98 +10,147 @@ export default function LoginPage() {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"PHONE" | "OTP">("PHONE");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(0);
 
-  // ================= SEND OTP =================
+  // ===== SEND OTP =====
   const sendOtp = async () => {
     setMessage("");
-
-    const res = await fetch("/api/send-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setMessage(data.message || "Failed to send OTP");
+    if (phone.length !== 10) {
+      setMessage("Enter a valid 10-digit number");
       return;
     }
+    setLoading(true);
 
-    setStep("OTP");
-    setMessage("OTP sent successfully");
+    try {
+      const res = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.message || "Failed to send OTP");
+        return;
+      }
+
+      setStep("OTP");
+      setMessage("OTP sent successfully");
+      setTimer(30); // 30s timer for resend
+    } catch (err) {
+      console.error(err);
+      setMessage("Server error. Try again");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ================= VERIFY OTP =================
+  // ===== OTP RESEND TIMER =====
+  useEffect(() => {
+    if (step === "OTP" && timer > 0) {
+      const id = setInterval(() => setTimer((t) => t - 1), 1000);
+      return () => clearInterval(id);
+    }
+  }, [step, timer]);
+
+  // ===== VERIFY OTP =====
   const verifyOtp = async () => {
     setMessage("");
-
-    const res = await fetch("/api/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, code: otp }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setMessage(data.message || "Invalid OTP");
+    if (otp.length !== 6) {
+      setMessage("Enter 6-digit OTP");
       return;
     }
+    setLoading(true);
 
-    // ✅ Store ONLY UI-safe info
-  localStorage.setItem(
-  "auth_user",
-  JSON.stringify({
-    role: data.role,
-    society_id: data.society_id,
-  })
-);
+    try {
+      const res = await fetch("/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, code: otp }),
+      });
 
-    // ✅ Redirect
-    router.push("/dashboard");
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.message || "Invalid OTP");
+        return;
+      }
+
+      // Store UI-safe info
+      localStorage.setItem(
+        "auth_user",
+        JSON.stringify({
+          role: data.role,
+          society_id: data.society_id,
+        })
+      );
+
+      router.push("/dashboard");
+    } catch (err) {
+      console.error(err);
+      setMessage("Server error. Try again");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center">
+    <div className="min-h-screen flex justify-center items-center bg-gray-100">
       <div className="p-6 bg-white shadow-md rounded w-80">
         {step === "PHONE" && (
           <>
             <input
               value={phone}
-              onChange={(e) =>
-                setPhone(e.target.value.replace(/\D/g, ""))
-              }
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
               placeholder="Mobile number"
               maxLength={10}
               className="w-full p-2 mb-2 border rounded"
             />
             <button
               onClick={sendOtp}
-              className="w-full bg-blue-600 text-white p-2 rounded"
+              disabled={loading}
+              className={`w-full p-2 rounded text-white ${
+                loading ? "bg-gray-400" : "bg-blue-600"
+              }`}
             >
-              Send OTP
+              {loading ? "Sending..." : "Send OTP"}
             </button>
           </>
         )}
 
         {step === "OTP" && (
           <>
+            <p className="mb-2 text-center text-gray-700">
+              OTP sent to {phone.replace(/(\d{2})(\d{4})(\d{4})/, "+91 $1 **** $3")}
+            </p>
             <input
               value={otp}
-              onChange={(e) =>
-                setOtp(e.target.value.replace(/\D/g, ""))
-              }
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
               placeholder="Enter OTP"
               maxLength={6}
               className="w-full p-2 mb-2 border rounded"
             />
             <button
               onClick={verifyOtp}
-              className="w-full bg-green-600 text-white p-2 rounded"
+              disabled={loading}
+              className={`w-full p-2 rounded text-white ${
+                loading ? "bg-gray-400" : "bg-green-600"
+              }`}
             >
-              Verify OTP
+              {loading ? "Verifying..." : "Verify OTP"}
             </button>
+            <div className="mt-2 text-center text-gray-600">
+              {timer > 0 ? (
+                <span>Resend OTP in {timer}s</span>
+              ) : (
+                <button
+                  className="text-blue-600 underline"
+                  onClick={sendOtp}
+                >
+                  Resend OTP
+                </button>
+              )}
+            </div>
           </>
         )}
 
