@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (!resident) {
-      return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+      return NextResponse.json({ success: false, message: "you are not a RWA member" }, { status: 404 });
     }
 
     // Generate OTP

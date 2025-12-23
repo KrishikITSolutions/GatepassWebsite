@@ -120,23 +120,23 @@ export default function Footer() {
                 gatepassai@gmail.com
               </a>
             </li>
-            <li>
+            <li>                               
               Phone:{" "}
               <a
-                href="tel:+918050996382"
+                href="tel: +918050996382"
                 className="hover:text-black transition-colors duration-300"
               >
                 +91 8050996382
               </a>
             </li>
             <li>
-              Address: Sri Nandi Residency,
+              Address: 183/6, 4th floor, 
               <br />
-              Plot No 6, Anjandari Nilaya, #201,
+              Above Sri Furniture Village,
               <br />
-              Heggondanahalli, Varthur-Gunjur Main,
+              Sarjapur Main Road, Dommsandra,
               <br />
-              Bengaluru - 560087
+              Bengaluru - 562125
             </li>
           </ul>
         </div>

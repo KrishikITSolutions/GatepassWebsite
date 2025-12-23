@@ -9,6 +9,7 @@ type PaidMonth = {
   month: string;
   year: number | string;
   amount_paid?: number;
+  amount?: number;
   payment_date?: string;
 };
 
@@ -35,16 +36,12 @@ export default function PaymentsPage() {
   const [loading, setLoading] = useState(false);
 
   const [activeCard, setActiveCard] = useState<"PAID" | "UNPAID" | null>(null);
-  const [showList, setShowList] = useState(false);
-
   const [filterMonth, setFilterMonth] = useState("");
   const [filterYear, setFilterYear] = useState<number>(new Date().getFullYear());
 
-  const [errorMsg, setErrorMsg] = useState("");
-  const [popupPayment, setPopupPayment] = useState<Payment | null>(null);
-
   const [selectedSocietyId, setSelectedSocietyId] = useState<string | null>(null);
   const [paymentsEnabled, setPaymentsEnabled] = useState(true);
+  const [showList, setShowList] = useState(false);
 
   const authUser =
     typeof window !== "undefined"
@@ -61,7 +58,6 @@ export default function PaymentsPage() {
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
-  /* ---------------- INIT ---------------- */
   useEffect(() => {
     const now = new Date();
     setFilterMonth(
@@ -70,7 +66,6 @@ export default function PaymentsPage() {
     setFilterYear(now.getFullYear());
   }, []);
 
-  /* ---------------- PAYMENT MASTER CHECK ---------------- */
   useEffect(() => {
     const checkPaymentsEnabled = async () => {
       if (!effectiveSocietyId) return;
@@ -93,7 +88,6 @@ export default function PaymentsPage() {
     checkPaymentsEnabled();
   }, [effectiveSocietyId]);
 
-  /* ---------------- FETCH PAYMENTS ---------------- */
   useEffect(() => {
     const fetchPayments = async () => {
       if (!effectiveSocietyId || !paymentsEnabled) return;
@@ -126,7 +120,6 @@ export default function PaymentsPage() {
     fetchPayments();
   }, [effectiveSocietyId, paymentsEnabled]);
 
-  /* ---------------- PAID / UNPAID LOGIC ---------------- */
   const processedPayments = payments.map(p => {
     const isPaid =
       p.paid_months?.some(
@@ -143,7 +136,6 @@ export default function PaymentsPage() {
 
   const listToShow = activeCard === "PAID" ? paidList : unpaidList;
 
-  /* ---------------- PAYMENTS DISABLED UI ---------------- */
   if (!paymentsEnabled && effectiveSocietyId) {
     return (
       <div className="flex flex-col items-center justify-center h-[80vh] text-center">
@@ -158,7 +150,6 @@ export default function PaymentsPage() {
     );
   }
 
-  /* ---------------- UI ---------------- */
   return (
     <div className="p-10 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-center mb-8">
@@ -174,7 +165,6 @@ export default function PaymentsPage() {
         </div>
       )}
 
-      {/* Month / Year */}
       <div className="flex justify-center gap-4 mb-8">
         <select
           className="p-2 border rounded"
@@ -197,7 +187,6 @@ export default function PaymentsPage() {
         </select>
       </div>
 
-      {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
         {cards.map(c => (
           <div
@@ -214,100 +203,75 @@ export default function PaymentsPage() {
         ))}
       </div>
 
-      {/* Popup */}
       {activeCard && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 w-[520px] relative">
+          <div className="bg-white rounded-2xl p-6 w-[600px] relative max-h-[80vh] flex flex-col">
             <button
-              onClick={() => {
-                setActiveCard(null);
-                setShowList(false);
-              }}
+              onClick={() => setActiveCard(null)}
               className="absolute top-3 right-4 text-2xl font-bold"
             >
               ×
             </button>
 
-            <h2 className="text-2xl font-semibold text-center mb-4">
-              {activeCard}
-            </h2>
-
-            <p className="text-5xl font-bold text-teal-700 text-center mb-6">
-              {listToShow.length}
-            </p>
+            {/* Header */}
+            <div className="mb-4">
+              <h2 className="text-2xl font-semibold text-center">{activeCard}</h2>
+              <p className="text-3xl font-bold text-teal-700 text-center mt-2">
+                {listToShow.length}
+              </p>
+            </div>
 
             {!showList && (
-              <div className="flex justify-center">
+              <div className="flex justify-center mb-4">
                 <button
                   onClick={() => setShowList(true)}
-                  className="px-6 py-2 bg-teal-600 text-white rounded-full"
+                  className="px-6 py-2 bg-teal-600 text-white rounded-full font-semibold"
                 >
                   View
                 </button>
               </div>
             )}
 
+            {/* Table container scrollable */}
             {showList && (
-              <div className="mt-6 max-h-72 overflow-y-auto border rounded-xl">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-gray-100">
+              <div className="overflow-y-auto flex-1 border rounded-lg">
+                <table className="w-full text-sm border-collapse border border-gray-300">
+                  <thead className="bg-gray-100 sticky top-0 z-10">
                     <tr>
-                      <th className="p-3 text-left">Name</th>
-                      <th className="p-3">Flat</th>
-                      <th className="p-3">Action</th>
+                      <th className="border p-2 text-left">Name</th>
+                      <th className="border p-2 text-center">Flat</th>
+                      <th className="border p-2 text-center">Date</th>
+                      <th className="border p-2 text-center">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {listToShow.map(p => (
-                      <tr key={p.id} className="border-t">
-                        <td className="p-3">{p.resident?.first_name}</td>
-                        <td className="p-3 text-center">
-                          {p.resident?.tower}-{p.resident?.flat_no}
-                        </td>
-                        <td className="p-3 text-center">
-                          <button
-                            className="text-teal-600 underline"
-                            onClick={() => setPopupPayment(p)}
-                          >
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {listToShow.map(p => {
+                      const monthData =
+                        p.paid_months?.find(
+                          pm =>
+                            pm.month.toLowerCase() === filterMonth &&
+                            pm.year.toString() === filterYear.toString()
+                        );
+                      const dateStr = monthData?.payment_date
+                        ? new Date(monthData.payment_date).toLocaleDateString("en-GB")
+                        : "-";
+                      const amount = monthData?.amount_paid ?? monthData?.amount ?? "-";
+
+                      return (
+                        <tr key={p.id} className="border-t">
+                          <td className="border p-2">{p.resident?.first_name}</td>
+                          <td className="border p-2 text-center">
+                            {p.resident?.tower}-{p.resident?.flat_no}
+                          </td>
+                          <td className="border p-2 text-center">{dateStr}</td>
+                          <td className="border p-2 text-center">₹{amount}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Payment details popup */}
-      {popupPayment && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl relative w-[360px]">
-            <button
-              className="absolute top-2 right-3"
-              onClick={() => setPopupPayment(null)}
-            >
-              ×
-            </button>
-
-            <p><b>Name:</b> {popupPayment.resident?.first_name}</p>
-            <p><b>Flat:</b> {popupPayment.resident?.tower}-{popupPayment.resident?.flat_no}</p>
-
-            {popupPayment.paid_months
-              ?.filter(
-                pm =>
-                  pm.month.toLowerCase() === filterMonth &&
-                  pm.year.toString() === filterYear.toString()
-              )
-              .map((pm, i) => (
-                <div key={i} className="mt-3">
-                  <p><b>Date:</b> {pm.payment_date?.split("T")[0]}</p>
-                  <p><b>Amount:</b> ₹{pm.amount_paid}</p>
-                </div>
-              ))}
           </div>
         </div>
       )}
