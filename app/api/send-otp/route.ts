@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { supabase } from "@/app/utils/supabase";
 import { otpStore } from "@/app/utils/otpStore"; // in-memory or replace with Redis
 import twilio from "twilio";
