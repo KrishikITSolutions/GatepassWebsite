@@ -5,6 +5,8 @@ import { supabase } from "@/app/utils/supabase";
 import { Users, Home, UserCheck, Phone, LogOut } from "lucide-react";
 import SocietySelector from "@/components/societyselector";
 
+/* ---------------- CONSTANTS ---------------- */
+
 // resident_type_id
 const OWNER_UUID = "beeb50a5-5769-41a5-a121-4c6dd62c06ce";
 const TENANT_UUID = "bd0986d4-4e4c-453b-9504-bfff91fe75f2";
@@ -28,7 +30,7 @@ type Resident = {
   phone_number: string;
 };
 
-const cards = [
+const ALL_CARDS = [
   { key: "total", label: "Total Residents", icon: Users },
   { key: "owners", label: "Owners", icon: Home },
   { key: "tenants", label: "Tenants", icon: UserCheck },
@@ -49,7 +51,7 @@ export default function TotalMembersDashboard() {
   const [showList, setShowList] = useState(false);
   const [listData, setListData] = useState<Resident[]>([]);
 
-  /* -------- Load user -------- */
+  /* ---------------- USER LOAD ---------------- */
   useEffect(() => {
     const raw = localStorage.getItem("auth_user");
     if (!raw) return;
@@ -59,7 +61,15 @@ export default function TotalMembersDashboard() {
     setSelectedSociety(user.role === "rwa" ? user.society_id : "ALL");
   }, []);
 
-  /* -------- Load main counts -------- */
+  /* ---------------- ROLE BASED CARDS ---------------- */
+  const cards =
+    userRole === "admin"
+      ? ALL_CARDS
+      : ALL_CARDS.filter(c =>
+          ["total", "owners", "tenants"].includes(c.key)
+        );
+
+  /* ---------------- MAIN COUNTS ---------------- */
   useEffect(() => {
     if (!selectedSociety || !userRole) return;
 
@@ -68,25 +78,23 @@ export default function TotalMembersDashboard() {
     const loadStats = async () => {
       const newStats: Record<string, number> = {};
 
-      // Total residents
       let q = supabase.from("resident_profiles").select("*", { count: "exact", head: true });
       if (societyFilter) q = q.eq("society_id", societyFilter);
       newStats.total = (await q).count ?? 0;
 
-      // Owners
       let oq = supabase.from("resident_profiles").select("*", { count: "exact", head: true }).eq("resident_type_id", OWNER_UUID);
       if (societyFilter) oq = oq.eq("society_id", societyFilter);
       newStats.owners = (await oq).count ?? 0;
 
-      // Tenants
       let tq = supabase.from("resident_profiles").select("*", { count: "exact", head: true }).eq("resident_type_id", TENANT_UUID);
       if (societyFilter) tq = tq.eq("society_id", societyFilter);
       newStats.tenants = (await tq).count ?? 0;
 
-      // Login/Logout
-      const { data } = await supabase.from("resident_profiles").select("device_token");
-      newStats.login = data?.reduce((s: number, r: any) => s + (Array.isArray(r.device_token) ? r.device_token.length : 0), 0) ?? 0;
-      newStats.logout = data?.filter((r: any) => !Array.isArray(r.device_token) || r.device_token.length === 0).length ?? 0;
+      if (userRole === "admin") {
+        const { data } = await supabase.from("resident_profiles").select("device_token");
+        newStats.login = data?.reduce((s, r: any) => s + (Array.isArray(r.device_token) ? r.device_token.length : 0), 0) ?? 0;
+        newStats.logout = data?.filter((r: any) => !Array.isArray(r.device_token) || r.device_token.length === 0).length ?? 0;
+      }
 
       setStats(newStats);
     };
@@ -94,12 +102,14 @@ export default function TotalMembersDashboard() {
     loadStats();
   }, [selectedSociety, userRole]);
 
-  /* -------- Subtype click → fetch COUNT -------- */
+  /* ---------------- SUBTYPE COUNT ---------------- */
   const handleSubTypeClick = async (st: { label: string; id: string }) => {
     setSelectedSubType(st);
     setShowList(false);
 
-    let q = supabase.from("resident_profiles").select("*", { count: "exact", head: true })
+    let q = supabase
+      .from("resident_profiles")
+      .select("*", { count: "exact", head: true })
       .eq("resident_type_id", popupCard === "owners" ? OWNER_UUID : TENANT_UUID)
       .eq("resident_sub_type_id", st.id);
 
@@ -109,16 +119,23 @@ export default function TotalMembersDashboard() {
     setSubTypeCount(count ?? 0);
   };
 
-  /* -------- View list -------- */
+  /* ---------------- VIEW LIST (FIXED) ---------------- */
   const loadListData = async () => {
     if (!popupCard) return;
 
-    let q = supabase.from("resident_profiles").select("first_name, tower, flat_no, phone_number");
+    let q = supabase
+      .from("resident_profiles")
+      .select("first_name, tower, flat_no, phone_number");
 
     if (popupCard === "owners") q = q.eq("resident_type_id", OWNER_UUID);
     else if (popupCard === "tenants") q = q.eq("resident_type_id", TENANT_UUID);
     else if (popupCard === "login") q = q.not("device_token", "is", null);
     else if (popupCard === "logout") q = q.or("device_token.is.null");
+
+    // ⭐ MAIN FIX — subtype filter
+    if (selectedSubType) {
+      q = q.eq("resident_sub_type_id", selectedSubType.id);
+    }
 
     if (selectedSociety !== "ALL") q = q.eq("society_id", selectedSociety);
 
@@ -130,11 +147,19 @@ export default function TotalMembersDashboard() {
   const activeCard = cards.find(c => c.key === popupCard);
   const ActiveIcon = activeCard?.icon;
 
-  const subTypes = popupCard === "owners" ? SUB_TYPES.owners : popupCard === "tenants" ? SUB_TYPES.tenants : [];
+  const subTypes =
+    popupCard === "owners"
+      ? SUB_TYPES.owners
+      : popupCard === "tenants"
+      ? SUB_TYPES.tenants
+      : [];
 
+  /* ---------------- UI ---------------- */
   return (
     <div className="p-10 bg-gray-100 min-h-screen">
-      <h1 className="text-4xl font-bold text-center mb-10">Total Members Dashboard</h1>
+      <h1 className="text-4xl font-bold text-center mb-10">
+        Total Members Dashboard
+      </h1>
 
       {userRole === "admin" && (
         <div className="flex justify-center mb-10">
@@ -159,6 +184,7 @@ export default function TotalMembersDashboard() {
         ))}
       </div>
 
+      {/* POPUP SAME AS BEFORE – NO UI CHANGE */}
       {popupCard && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 w-[520px] relative max-h-[80vh] overflow-y-auto">
@@ -175,10 +201,11 @@ export default function TotalMembersDashboard() {
 
             <div className="flex flex-col items-center mb-4">
               {ActiveIcon && <ActiveIcon className="text-teal-600 mb-2" size={32} />}
-              <h2 className="text-2xl font-semibold">{selectedSubType?.label || activeCard?.label}</h2>
+              <h2 className="text-2xl font-semibold">
+                {selectedSubType?.label || activeCard?.label}
+              </h2>
             </div>
 
-            {/* Subtypes for owners/tenants */}
             {(popupCard === "owners" || popupCard === "tenants") && !selectedSubType ? (
               <div className="space-y-3">
                 {subTypes.map(st => (
