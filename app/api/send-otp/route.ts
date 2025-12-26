@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const formattedPhone = `91${phone}`;
 
-    // Fetch user
+    // ===== FETCH RESIDENT =====
     const { data: resident } = await supabase
       .from("resident_profiles")
       .select("resident_id, website_access, society_id")
@@ -34,7 +34,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate OTP
+    // ✅ ACCESS RESTRICTION (ONLY THIS IS NEW)
+    if (!["admin", "rwa"].includes(resident.website_access)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "You are not authorized to access the website",
+        },
+        { status: 403 }
+      );
+    }
+
+    // ===== GENERATE OTP =====
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     otpStore[formattedPhone] = {
@@ -51,7 +62,7 @@ export async function POST(req: NextRequest) {
     );
 
     await client.messages.create({
-      body: `Your OTP is ${otp}`,
+      body: `Your OTP for website login is ${otp}. Valid for 5 minutes.`,
       from: process.env.TWILIO_PHONE_NUMBER!,
       to: `+${formattedPhone}`,
     });
